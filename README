@@ -19,9 +19,8 @@ point your browser to http://www.perl.org/ .
 
 What is Perl-Bzip2 ?
 ==================
-Perl-Bzip2 provides Bzip2 bindings for Perl5. I.e. you can access the
-Bzip2 library from your Perl scripts there by compressing ordinary
-Perl strings.
+Perl-Bzip2 provides Bzip2 bindings for Perl5. I.e. you can use the Bzip2
+library from your Perl scripts to compress ordinary Perl strings.
 
 
 Any caveats ?
@@ -34,7 +33,7 @@ Bug fixes and other feedback are welcome.
 Author
 ======
 Well, I just wanna tell you, that this was just a test of writing perl.
-Therefore I hope, that the two functions I have exported to perl will work.
+Therefore I hope that the two functions I have exported to perl will work.
 
 Copyright
 =========

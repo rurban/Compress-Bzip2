@@ -6,6 +6,8 @@ Makefile.PL
 MANIFEST
 NEWS
 README
-configure
 typemap
-t/test.t
+t/01version.t
+t/02basic.t
+t/03stream.t
+META.yml                                 Module meta-data (added by MakeMaker)
