@@ -41,8 +41,8 @@ REQUIRE:	0.0
 PROTOTYPES:	ENABLE
 
 BOOT:
-	if (bzlibVersion() == NULL)
-		croak("Compress::Bzip2 cannot load bzip-libraray %s\n",bzlibVersion()) ;
+	if (BZ2_bzlibVersion() == NULL)
+		croak("Compress::Bzip2 cannot load bzip-libraray %s\n",BZ2_bzlibVersion()) ;
 
 double
 constant(name, arg)
@@ -68,26 +68,29 @@ X_compress(string, level = 1)
 		if (items == 2 && SvOK(ST(1)))
 			level = SvIV(ST(1));
 		in_len = len;
-		out_len = in_len + in_len / 64 + 16 + 3;
-		RETVAL = newSV(5+out_len);
+#		out_len = in_len + in_len / 64 + 16 + 3;
+		out_len = in_len * 1.01 + 600;
+		RETVAL = newSV(out_len);
 		SvPOK_only(RETVAL);
 
 		out = SvPVX(RETVAL);
 		new_len = out_len;
 
 		out[0] = 0xf0;
-		err = bzBuffToBuffCompress(out+5,&new_len,in,in_len,6,0,240);
+                err = BZ2_bzBuffToBuffCompress(out,&new_len,in,in_len,6,0,240);
 
 		if (err != BZ_OK || new_len > out_len)
 		{
 			SvREFCNT_dec(RETVAL);
 			XSRETURN_UNDEF;
 		}
-		SvCUR_set(RETVAL,5+new_len);
-		out[1] = (in_len >> 24) & 0xff;
-		out[2] = (in_len >> 16) & 0xff;
-		out[3] = (in_len >>  8) & 0xff;
-		out[4] = (in_len >>  0) & 0xff;
+		SvCUR_set(RETVAL,new_len);
+
+   # no clue what this stuff did!
+	#	out[1] = (in_len >> 24) & 0xff;
+	#	out[2] = (in_len >> 16) & 0xff;
+	#	out[3] = (in_len >>  8) & 0xff;
+	#	out[4] = (in_len >>  0) & 0xff;
 	OUTPUT:
 		RETVAL
 
@@ -104,21 +107,32 @@ X_decompress(string)
 		int		err;
 	CODE:
 		sv = deRef(ST(0), "decompress");
-		in = (unsigned char *) SvPV(sv, len);
-		if (len < 5 + 3 || in[0] < 0xf0 || in[0] > 0xf1)
-			XSRETURN_UNDEF;
-		in_len = len - 5;
-		out_len = (in[1] << 24) | (in[2] << 16) | (in[3] << 8) | in[4];
+		in 	= (unsigned char *) SvPV(sv, len);
+
+		# printf("len is: %d\n",len);
+		# printf("in[0] is: %x\n",in[0]);
+
+		in_len = len;
+		# Note: Bzip can do as much as 20:1 if this increases later we may need to increase the
+		# size of the output buffer.
+		out_len = in_len*20;
+
 		RETVAL = newSV(out_len > 0 ? out_len : 1);
 		SvPOK_only(RETVAL);
 		out = SvPVX(RETVAL);
+
 		new_len = out_len;
-		err = bzBuffToBuffDecompress(out,&new_len,in+5,in_len,0,0);
-		if (err != BZ_OK || new_len != out_len)
+# printf("%s\n",in);
+		err = BZ2_bzBuffToBuffDecompress(out,&new_len,in,in_len,0,0);
+#		printf("\nerr is: %d\n",err);	
+#		printf("output: %s\n",out);
+		if (err != BZ_OK || new_len == out_len)
 		{
 			SvREFCNT_dec(RETVAL);
 			XSRETURN_UNDEF;
 		}
+# printf("done!");
+		# truncates the buffer
 		SvCUR_set(RETVAL, new_len);
 	OUTPUT:
 		RETVAL

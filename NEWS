@@ -1,3 +1,8 @@
+27. Jun 2001
+Version 1.01
+After reading the note below i've picked up the torch and updated this so it
+handles much larger buffers and also compiles correctly against Bzip2 1.0.1.
+Enjoy! any bugs email me at brian@zoovy.com or brian@digitalco.com
 
 16. Feb. 1999
 Version 1.0
