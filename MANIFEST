@@ -1,0 +1,11 @@
+COPYING
+INSTALL
+Bzip2.pm
+Bzip2.xs
+Makefile.PL
+MANIFEST
+NEWS
+README
+configure
+typemap
+t/test.t
