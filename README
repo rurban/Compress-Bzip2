@@ -38,10 +38,8 @@ Therefore I hope, that the two functions I have exported to perl will work.
 
 Copyright
 =========
-Bzip2: Brian Horakh <brian@zoovy.com>
 Bzip2: Julian Seward <jseward@acm.org>
 Perl-Bzip2: Gawdi Azem <azemgi@rupert.informatik.uni-stuttgart.de>
-
 
 Perl-Bzip2 are distributed under the terms of the
 GNU General Public License (GPL).  See the file COPYING.
@@ -60,3 +58,17 @@ Friend, Perl-Guru:
 Christian Harms, chrisian@harms.net
 I am just a beginner in writing perl. I have started this year with writing
 perl scripts.
+
+
+Addendum by Marco "Kiko" Carnut <kiko@tempest.com.br>
+-----------------------------------------------------
+
+When I tried to install this module, compilation failed because it
+used the old style bzip2 API function names; libbz2 1.0 and later
+add a BZ2_ prefix on function calls. I fixed that and worked fine.
+
+BTW, if you want to save your buffer so that the bzip2 command line
+utility can read it, remove the trailing bytes before the "BZ" bytes
+in the compressed stream. And, if you're on Windows, make sure to
+use binmode on your output filehandle.
+

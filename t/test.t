@@ -10,11 +10,11 @@ use Compress::Bzip2;
 my $SourceString;
 my $TargetString;
 my $TargetOutString;
+my $InputFile;
 my $OutputFile;
-my $InputFile = "";
 
-if ($ARGV[0]) { $InputFile=$ARGV[0]; }
-else { $InputFile='t/test.t'; }
+if ($ARGV[0] ne '') { $InputFile=$ARGV[0]; }
+else { $InputFile='test.t'; }
 
 $OutputFile=">".$InputFile.".dek";
 
@@ -31,6 +31,7 @@ if (-e $InputFile) {
     print "Bzip-Com: ".length($TargetString)."\n";
 
     $TargetOutString=Compress::Bzip2::decompress($TargetString);
+
 
     print "Bzip-Dec: ".length($TargetOutString)."\n";
 

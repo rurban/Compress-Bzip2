@@ -65,7 +65,7 @@ Compress::Bzip2 - Interface to Bzip2 compression library
     use Compress::Bzip2;
 
     $dest = Compress::Bzip2::compress($source, [$level]);
-    $dest = Compress::Bzip2::decompress($source, [$ratio]);
+    $dest = Compress::Bzip2::decompress($source);
 
 =head1 DESCRIPTION
 
@@ -92,26 +92,20 @@ On error I<undef> is returned.
 
 =head1 DECOMPRESSION FUNCTIONS
 
-$dest = Compress::Bzip2::decompress($string, $ratio)
+$dest = Compress::Bzip2::decompress($string)
 
 Decompress the data in string, returning a string containing the
-decompressed data. Ratio is the amount of space reserved, by default
-we reseve 20x the length of string for decompressing. If you have 
-a better than 20:1 compression ratio, then you'll need to increase
-ratio. 
+decompressed data.
 
 On error I<undef> is returned.
 
 =head1 AUTHOR
 
 The I<Compress::Bzip2> module was written by Gawdi Azem
-F<azemgi@rupert.informatik.uni-stuttgart.de>, 
-Brian Horakh F<brian@zoovy.com>.
+F<azemgi@rupert.informatik.uni-stuttgart.de>.
 
 =head1 MODIFICATION HISTORY
 
 1.00 First public release of I<Compress::Bzip2>.
-1.10 Re-released to be compatible with new libbz
-		added ratio to decompress
 
-
+1.02 Added BZ2_ prefixes so that it works with libbz2 versions >1.0
