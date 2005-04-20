@@ -4,11 +4,17 @@
               Copyright (c) 1999 Gawdi Azem
               azemgi@rupert.informatik.uni-stuttgart.de
 
+Amended, Rob Janes 2005
+
 What is Bzip2 ?
 =============
 Bzip2 is a portable lossless data compression library written in ANSI C.
 It offers pretty fast compression and fast decompression.
 Bzip2 has very good results, if you want to compress ASCII Documents.
+
+[Rob Janes]
+Bzip2 is probably not great for streaming compression.  Best for compressing
+an entire document.
 
 What is Perl ?
 ==============
@@ -19,9 +25,21 @@ point your browser to http://www.perl.org/ .
 
 What is Perl-Bzip2 ?
 ==================
-Perl-Bzip2 provides Bzip2 bindings for Perl5. I.e. you can use the Bzip2
-library from your Perl scripts to compress ordinary Perl strings.
+Perl-Bzip2 provides Bzip2 bindings for Perl5. I.e. you can access the
+Bzip2 library from your Perl scripts there by compressing ordinary
+Perl strings.
 
+[Rob Janes]
+
+It's my intent to make this package like the Compress::Zlib package, so
+that code that uses one can fairly easily use the other.  The perlxs stuff
+that's visible to perl has methods that have the same names as their
+Compress::Zlib counterparts, except that the "g" is changed to a "b".
+
+The perl code in the Compress::Bzip2 .pm file has the aliases with "g".
+
+Some things in Compress::Zlib don't have counterparts in Bzip2.  Those
+are dummy methods in the .pm file.
 
 Any caveats ?
 =============
@@ -30,10 +48,18 @@ works fine for me, though.
 
 Bug fixes and other feedback are welcome.
 
+[Rob Janes]
+Well, I might be a perl guru.  Still, the best I can say is that it
+works fine for me.
+
+Bug fixes and other feedback are welcome, send them to me, not
+azemgi, as this code is nothing like his code.  This is a complete
+rewrite.
+
 Author
 ======
 Well, I just wanna tell you, that this was just a test of writing perl.
-Therefore I hope that the two functions I have exported to perl will work.
+Therefore I hope, that the two functions I have exported to perl will work.
 
 Copyright
 =========
@@ -58,16 +84,37 @@ Christian Harms, chrisian@harms.net
 I am just a beginner in writing perl. I have started this year with writing
 perl scripts.
 
+===============
+Author Rob Janes:
 
-Addendum by Marco "Kiko" Carnut <kiko@tempest.com.br>
------------------------------------------------------
+Well, I cut and pasted stuff from Compress::Zlib.  I have s/w that uses
+Compress::Zlib and I wanted an easy migration path, since bzlib gives
+about 20-30% better compression on ascii files than gzip.
 
-When I tried to install this module, compilation failed because it
-used the old style bzip2 API function names; libbz2 1.0 and later
-add a BZ2_ prefix on function calls. I fixed that and worked fine.
+This is a 2.00 release.  Since there was a change in authorship, I
+figured I should bump the major version number.  I could have easily
+given this a slightly different name.  Given the minimal functionality
+of version 1, that didn't seem like a useful thing to do.  Heck,
+version 1 doesn't even work with bzlib 1.x, you have to patch in the
+BZ2_ prefixes, so my guess is that Compress::Bzip2 isn't being used
+in a lot of places.
 
-BTW, if you want to save your buffer so that the bzip2 command line
-utility can read it, remove the trailing bytes before the "BZ" bytes
-in the compressed stream. And, if you're on Windows, make sure to
-use binmode on your output filehandle.
+The tests in the t directory all work in a linux environment.  The
+tests (many of the tests) operate on test data from the bzip2 1.0.2
+distribution.  I blatently copied it into my t directory.
 
+I have tested (see the t directory)
+
+new, bzsetparams, bzopen, bzflush, bzclose.
+bzread, bzwrite, bzreadline.
+bzdeflateInit, bzdeflate.
+bzinflateInit, bzinflate.
+bzstreamflush, bzstreamclose.
+memBzip, memBunzip
+compress, decompress
+total_in, total_out.
+bzlibversion.
+bzeof
+bzerror
+bzclearerr
+$bzerrno

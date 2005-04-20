@@ -1,22 +1,3 @@
-27. Jul. 2004 by David Robins <dbrobins@davidrobins.net>
-
-Fixed error with compressing certain strings (buffer was too small); now using
-recommended 101% + 600 bytes.
-
-Added error() method to return the last error if other functions return undef
-(previously there was no error feedback, just the undef).
-
-Various XS cleanups.
-
-Added progressive compress/decompress interface: compress_init() and
-decompress_init(), which return a stream object (see perldoc).
-
-Add true tests using Test framework.
-
-15. Jun. 2003 by Marco "Kiko" Carnut <kiko@tempest.com.br>
-
-Added BZ2_ prefix to function names so that it works with newer libbz2s
-(version > 1.0). 
 
 16. Feb. 1999
 Version 1.0
