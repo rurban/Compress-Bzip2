@@ -42,7 +42,12 @@ WriteMakefile(
 	      clean             => {FILES=>'const-c.inc const-xs.inc t/???-tmp-* junk* *~ lib/Compress/*~ t/*~ bztest show_bzversion'},
 	      depend            => { 'Makefile'	  => 'config.in' },
 	      NORECURS          => $BUILD_BZLIB ? 0 : 1,
-	      NO_META           => 1,
+	      #NO_META           => 1,
+	      PREREQ_PM         => {
+	      'Test::More' => 0,
+	      'File::Spec' => 0,
+	      }
+	      
 );
 
 if  (eval {require ExtUtils::Constant; 1}) {
