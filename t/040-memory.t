@@ -35,4 +35,4 @@ $uncompress = decompress( $compress );
 
 ok( $compress ne $string, "bzip1 string was not inouted" );
 ok( length($compress)-10 < length($string), "bzip1 string compression - ".length($compress).' vs '.length($string) );
-ok( $uncompress eq $string, "bzip1 decompressed is same as the original" );
+ok( $uncompress eq $string, "bzip1 decompress is same as the original" );

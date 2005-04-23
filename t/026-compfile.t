@@ -11,9 +11,14 @@ BEGIN {
   use_ok('Compress::Bzip2');
 };
 
+do 't/lib.pl';
+
 my $debugf = 0;
-my $INFILE = 't/022-sample.txt';
+
+my $INFILE = 'bzlib-src/sample2.ref';
+( my $MODELFILE = $INFILE ) =~ s/\.ref$/.bz2/;
 my $PREFIX = 't/026-tmp';
+my $BZIP = -x 'bzlib-src/bzip2' ? 'bzlib-src/bzip2' : 'bzip2';
 
 my $in;
 open( $in, "< $INFILE" );
@@ -58,7 +63,9 @@ ok( $total_out_b4 < $total_out, "file trailer written by bzclose" );
 ok( $total_in == -s $INFILE, "total_in should be ".(-s $INFILE).", is $total_in" );
 ok( $total_out == -s "$PREFIX-sample.bz2", "total_out should be ".(-s "$PREFIX-sample.bz2").", is $total_out" );
 
-system( "bzip2 -1 < $INFILE | od -x > $PREFIX-reference-bz2.odx" );
-system( "od -x < $PREFIX-sample.bz2 | diff -c - $PREFIX-reference-bz2.odx > $PREFIX-diff.txt" );
+#system( "bzip2 -1 < $INFILE | od -x > $PREFIX-reference-bz2.odx" );
+#system( "od -x < $PREFIX-sample.bz2 | diff - $PREFIX-reference-bz2.odx > $PREFIX-diff.txt" );
+#ok( ! -s "$PREFIX-diff.txt", "no differences with bzip2" );
 
-ok( ! -s "$PREFIX-diff.txt", "no differences with bzip2" );
+system( "$BZIP -1 < $INFILE > $PREFIX-reference.bz2" );
+ok ( compare_binary_files( "$PREFIX-sample.bz2", "$PREFIX-reference.bz2" ), 'no differences with reference' );

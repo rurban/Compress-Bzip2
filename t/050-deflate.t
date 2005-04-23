@@ -10,9 +10,13 @@ BEGIN {
   use_ok('Compress::Bzip2');
 };
 
+do 't/lib.pl';
+
 my $debugf = 0;
-my $INFILE = 't/022-sample.txt';
+my $INFILE = 'bzlib-src/sample2.ref';
+( my $MODELFILE = $INFILE ) =~ s/\.ref$/.bz2/;
 my $PREFIX = 't/050-tmp';
+my $BZIP = -x 'bzlib-src/bzip2' ? 'bzlib-src/bzip2' : 'bzip2';
 
 my ( $in, $out, $d, $outbuf, $counter, $bytes, $bytesout );
 
@@ -20,7 +24,7 @@ open( $in, "< $INFILE" ) or die "$INFILE: $!";
 open( $out, "> $PREFIX-out.bz2" ) or die "$PREFIX-out.bz2: $!";
 
 ## verbosity 0-4, small 0,1, blockSize100k 1-9, workFactor 0-250, readUncompressed 0,1
-$d = bzdeflateInit( -verbosity => $debugf ? 4 : 0 );
+$d = bzdeflateInit( -verbosity => $debugf ? 4 : 0, -blockSize100k => 2 );
 
 ok( $d, "bzdeflateInit was successful" );
 
@@ -56,8 +60,9 @@ ok( $bytes && $bytesout, "$counter blocks read, $bytes bytes in, $bytesout bytes
 close($in);
 close($out);
 
-system( "bzip2 -1 < $INFILE | od -x > $PREFIX-reference-bz2.odx" );
-system( "od -x < $PREFIX-out.bz2 > $PREFIX-out-bz2.odx" );
-system( "diff -c $PREFIX-out-bz2.odx $PREFIX-reference-bz2.odx > $PREFIX-diff.txt" );
+#system( "$BZIP -1 < $INFILE | od -x > $PREFIX-reference-bz2.odx" );
+#system( "od -x < $PREFIX-out.bz2 > $PREFIX-out-bz2.odx" );
+#system( "diff $PREFIX-out-bz2.odx $PREFIX-reference-bz2.odx > $PREFIX-diff.txt" );
+#ok( ! -s "$PREFIX-diff.txt", "no differences with bzip2" );
 
-ok( ! -s "$PREFIX-diff.txt", "no differences with bzip2" );
+ok ( compare_binary_files( "$PREFIX-out.bz2", $MODELFILE ), "no differences with stream compressing $INFILE" );

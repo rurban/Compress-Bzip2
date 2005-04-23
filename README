@@ -87,11 +87,15 @@ perl scripts.
 ===============
 Author Rob Janes:
 
-Well, I cut and pasted stuff from Compress::Zlib.  I have s/w that uses
+Well, I cut and pasted stuff from Compress::Zlib.  If I wanted to know
+how to do something in perlxs, I usually found it in the Compress::Zlib
+package.
+
+I wanted Compress::Zlib compatibility cause I have s/w that uses
 Compress::Zlib and I wanted an easy migration path, since bzlib gives
 about 20-30% better compression on ascii files than gzip.
 
-This is a 2.00 release.  Since there was a change in authorship, I
+This is a 2.x release.  Since there was a change in authorship, I
 figured I should bump the major version number.  I could have easily
 given this a slightly different name.  Given the minimal functionality
 of version 1, that didn't seem like a useful thing to do.  Heck,

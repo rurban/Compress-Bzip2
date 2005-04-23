@@ -1,6 +1,7 @@
 # -*- mode: perl -*-
 
 use Test::More tests => 5;
+#use Test::More qw(no_plan);
 
 ## uncompress a compressed simple text file - the lyrics to end of the world REM
 ## compare against bunzip2 command with od -x and diff
@@ -9,8 +10,14 @@ BEGIN {
   use_ok('Compress::Bzip2');
 };
 
-my $INFILE = 't/030-sample.bz2';
+do 't/lib.pl';
+
+my $debugf = 0;
+
+my $INFILE = 'bzlib-src/sample0.bz2';
+( my $MODELFILE = $INFILE ) =~ s/\.bz2$/.ref/;
 my $PREFIX = 't/030-tmp';
+my $BZIP = -x 'bzlib-src/bzip2' ? 'bzlib-src/bzip2' : 'bzip2';
 
 my $out;
 open( $out, "> $PREFIX-sample.txt" );
@@ -41,7 +48,8 @@ ok( !$res, "file was closed $res $Compress::Bzip2::bzerrno" );
 
 close($out);
 
-system( "bunzip2 < $INFILE > $PREFIX-reference.txt" );
-system( "diff -c $PREFIX-sample.txt $PREFIX-reference.txt > $PREFIX-diff.txt" );
+#system( "bunzip2 < $INFILE > $PREFIX-reference.txt" );
+#system( "diff $PREFIX-sample.txt $PREFIX-reference.txt > $PREFIX-diff.txt" );
+#ok( ! -s "$PREFIX-diff.txt", "no differences with bunzip2" );
 
-ok( ! -s "$PREFIX-diff.txt", "no differences with bunzip2" );
+ok ( compare_binary_files( "$PREFIX-sample.txt", $MODELFILE ), 'no differences with decompressing $INFILE' );

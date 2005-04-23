@@ -9,13 +9,19 @@ BEGIN {
   use_ok('Compress::Bzip2');
 };
 
+do 't/lib.pl';
+
 my $debugf = 0;
+my $INFILE = 'bzlib-src/sample2.ref';
+( my $MODELFILE = $INFILE ) =~ s/\.ref$/.bz2/;
+my $PREFIX = 't/024-tmp';
+my $BZIP = -x 'bzlib-src/bzip2' ? 'bzlib-src/bzip2' : 'bzip2';
 
 my $in;
-open( $in, "< t/024-sample.txt" );
+open( $in, $INFILE );
 
-my $d = Compress::Bzip2->new( -verbosity => $debugf ? 4 : 0, -blockSize100k => 1 );
-$d->bzopen( "t/024-tmp-sample.bz2", "w" );
+my $d = Compress::Bzip2->new( -verbosity => $debugf ? 4 : 0, -blockSize100k => 2 );
+$d->bzopen( "$PREFIX-sample.bz2", "w" );
 
 ok( $d, "open was successful" );
 
@@ -37,7 +43,7 @@ while ( $bytes < 1_000_000 ) {
   $filecount++;
   sysseek($in,0,0);
 }
-ok( $counter, "$counter data was written, $bytes bytes, in $filecount loops" );
+ok( $counter, "$counter blocks were read, $bytes bytes, in $filecount loops" );
 
 my $res = $d->bzclose;
 ok( !$res, "file was closed $res $Compress::Bzip2::bzerrno" );
@@ -45,8 +51,12 @@ ok( !$res, "file was closed $res $Compress::Bzip2::bzerrno" );
 close($in);
 
 my $out;
-open( $in, "< t/024-sample.txt" ) or die;
-open( $out, '| bzip2 -1 | od -x > t/024-tmp-reference-bz2.odx' ) or die;
+open( $in, $INFILE ) or die;
+#open( $out, "> $PREFIX-reference.bz2" ) or die;
+
+print STDERR "Running $BZIP -2 > $PREFIX-reference.bz2\n" if $debugf;
+
+open( $out, "| $BZIP -2 > $PREFIX-reference.bz2" ) or die;
 for (my $i=0; $i<$filecount; $i++) {
   while ( my $ln = sysread( $in, $buf, 512 ) ) {
     syswrite($out, $buf, $ln);
@@ -56,7 +66,14 @@ for (my $i=0; $i<$filecount; $i++) {
 close($in);
 close($out);
 
-system( 'od -x < t/024-tmp-sample.bz2 > t/024-tmp-sample-bz2.odx' );
-system( 'diff t/024-tmp-sample-bz2.odx t/024-tmp-reference-bz2.odx > t/024-tmp-diff.txt' );
+#system( 'od -x < t/024-tmp-sample.bz2 > t/024-tmp-sample-bz2.odx' );
+#system( 'diff t/024-tmp-sample-bz2.odx t/024-tmp-reference-bz2.odx > t/024-tmp-diff.txt' );
 
-ok( ! -s 't/024-tmp-diff.txt', "no differences with bzip2" );
+#ok( ! -s 't/024-tmp-diff.txt', "no differences with bzip2" );
+
+ok ( compare_binary_files( "$PREFIX-sample.bz2", "$PREFIX-reference.bz2" ), 'no differences with reference' );
+
+#system( "bzip2 < $INFILE | od -x > $PREFIX-reference-bz2.odx" );
+#system( "od -x < $PREFIX-sample.bz2 | diff - $PREFIX-reference-bz2.odx > $PREFIX-diff.txt" );
+
+#ok( ! -s "$PREFIX-diff.txt", "no differences with bzip2" );

@@ -1,15 +1,18 @@
 # -*- mode: perl -*-
 
-#use Test::More tests => 5;
-use Test::More qw(no_plan);
+use Test::More tests => 9;
+#use Test::More qw(no_plan);
 use Fcntl;
 
 BEGIN {
   use_ok('Compress::Bzip2');
 };
 
+do 't/lib.pl';
+
 my $debugf = 0;
-my $INFILE = 't/020-sample.txt';
+my $INFILE = 'bzlib-src/sample0.ref';
+( my $MODELFILE = $INFILE ) =~ s/\.ref$/.bz2/;
 my $PREFIX = 't/041-tmp';
 
 ## verbosity 0-4, small 0,1, blockSize100k 1-9, workFactor 0-250, readUncompressed 0,1
@@ -45,7 +48,7 @@ ok( !$res, "file was closed $res $Compress::Bzip2::bzerrno" );
 close($in);
 
 system( "bzip2 < $INFILE | od -x > $PREFIX-reference-bz2.odx" );
-system( "od -x < $PREFIX-protected.bz2 | diff -c - $PREFIX-reference-bz2.odx > $PREFIX-diff.txt" );
+system( "od -x < $PREFIX-protected.bz2 | diff - $PREFIX-reference-bz2.odx > $PREFIX-diff.txt" );
 
 ok( ! -s "$PREFIX-diff.txt", "no differences with bzip2" );
 

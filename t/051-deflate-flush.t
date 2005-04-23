@@ -3,16 +3,21 @@
 use Test::More tests => 5;
 #use Test::More qw(no_plan);
 
-## compress sample2 from the bzip2 1.0.2 distribution
-## compare against bzip2 command with od -x and diff
+## test bzflush
+## stream compress sample2 from the bzip2 1.0.2 distribution
+## verify bunzip2 can reconstruct the output
 
 BEGIN {
   use_ok('Compress::Bzip2');
 };
 
+do 't/lib.pl';
+
 my $debugf = 0;
-my $INFILE = 't/022-sample.txt';
+my $INFILE = 'bzlib-src/sample2.ref';
+( my $MODELFILE = $INFILE ) =~ s/\.ref$/.bz2/;
 my $PREFIX = 't/051-tmp';
+my $BZIP = -x 'bzlib-src/bzip2' ? 'bzlib-src/bzip2' : 'bzip2';
 
 my ( $in, $out, $d, $outbuf, $counter, $bytes, $bytesout, $flushcount, $bytesflushedmark );
 
@@ -65,8 +70,9 @@ ok( $flushcount, "successful flushes at 50,000 - $flushcount" );
 close($in);
 close($out);
 
-system( "bunzip2 < $PREFIX-out.bz2 | od -x > $PREFIX-reference-out-bunzip.odx" );
-system( "od -x < $INFILE > $PREFIX-infile.odx" );
-system( "diff -c $PREFIX-infile.odx $PREFIX-reference-out-bunzip.odx > $PREFIX-diff.txt" );
+system( "$BZIP -d < $PREFIX-out.bz2 > $PREFIX-reference-out-bunzip2.txt" );
+#system( "od -x < $INFILE > $PREFIX-infile.odx" );
+#system( "diff $PREFIX-infile.odx $PREFIX-reference-out-bunzip.odx > $PREFIX-diff.txt" );
+#ok( ! -s "$PREFIX-diff.txt", "no differences with bzip2" );
 
-ok( ! -s "$PREFIX-diff.txt", "no differences with bzip2" );
+ok ( compare_binary_files( $INFILE, "$PREFIX-reference-out-bunzip2.txt" ), "no differences with 50k stream compressing $INFILE" );

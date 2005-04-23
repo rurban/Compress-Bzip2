@@ -1,6 +1,20 @@
 Revision history for Perl extension Compress::Bzip2.
 
-0.01  Wed Apr 13 16:33:35 2005
-	- original version; created by h2xs 1.23 with options
-		-b 5.6.0 -n Compress::Bzip2 bzlib.h
+2.00 Wed Apr 13 16:33:35 2005
+      - original version; created by h2xs 1.23 with options
+	-b 5.6.0 -n Compress::Bzip2 bzlib.h
+      - complete re-write of 1.0 with 1.02 patches.
+
+2.01 Wed Apr 20 2005
+     - cleaned up for 64bit, HPUX PA-RISC 2.0W and itanium
+	 - fleshed out the Compress::Zlib compatibility, added a
+	   couple of tests for it.
+	 - added bzip2, bunzip2 and bzcat, which act like the bzip
+	   commands.
+	 - added some compatibility for windows, can't test it out really
+	 - added the bzlib library underneath
+	 - changed the test suite so that it does not rely on bzip2
+	   being installed.
+	 - added a test to the Makefile.PL to determine whether or
+	   not the internal Bzlib is necessary.
 

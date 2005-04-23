@@ -1,35 +1,36 @@
 # -*- mode: perl -*-
 
 use Test::More tests => 5;
+#use Test::More qw(no_plan);
 
-## compress sample2 from the bzip2 1.0.2 distribution
+## test the Compress::Zlib compatibility
+## compress a simple text file - the lyrics to end of the world REM
 ## compare against bzip2 command with od -x and diff
 
 BEGIN {
-  use_ok('Compress::Bzip2');
+  use_ok('Compress::Bzip2', qw(:gzip));
 };
 
 do 't/lib.pl';
 
 my $debugf = 0;
-my $INFILE = 'bzlib-src/sample2.ref';
+my $INFILE = 'bzlib-src/sample0.ref';
 ( my $MODELFILE = $INFILE ) =~ s/\.ref$/.bz2/;
-my $PREFIX = 't/022-tmp';
+my $PREFIX = 't/020-tmp';
 
 my $in;
 open( $in, $INFILE );
 
-my $d = bzopen( "$PREFIX-sample.bz2", "w" );
-$d->bzsetparams( -blockSize100k => 2 );
+my $d = gzopen( "$PREFIX-sample.bz2", "w" );
 
-ok( $d, "open was successful" );
+ok( $d, "gzopen was successful" );
 
 my $counter = 0;
 my $bytes = 0;
 while ( my $ln = read( $in, $buf, 512 ) ) {
-  my $out = $d->bzwrite( $buf, $ln );
+  my $out = $d->gzwrite( $buf, $ln );
   if ( $out < 0 ) {
-    print STDERR "error: $out $Compress::Bzip2::bzerrno\n";
+    print STDERR "error: $out $gzerrno\n";
     last;
   }
   $bytes += $ln;
@@ -37,13 +38,12 @@ while ( my $ln = read( $in, $buf, 512 ) ) {
 }
 ok( $counter, "$counter blocks were read, $bytes bytes" );
 
-my $res = $d->bzclose;
-ok( !$res, "file was closed $res $Compress::Bzip2::bzerrno" );
+my $res = $d->gzclose;
+ok( !$res, "file was closed $res $gzerrno" );
 
 close($in);
 
 ok ( compare_binary_files( "$PREFIX-sample.bz2", $MODELFILE ), 'no differences with reference' );
-
 #system( "bzip2 < $INFILE | od -x > $PREFIX-reference-bz2.odx" );
 #system( "od -x < $PREFIX-sample.bz2 | diff - $PREFIX-reference-bz2.odx > $PREFIX-diff.txt" );
 

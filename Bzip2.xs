@@ -72,7 +72,11 @@ typedef struct bzFile_s {
 
 typedef bzFile* Compress__Bzip2;
 
+#ifdef CAN_PROTOTYPE
 void bzfile_streambuf_set( bzFile* obj, char* buffer, int bufsize );
+#else
+void bzfile_streambuf_set( );
+#endif
 
 static SV* 
 #ifdef CAN_PROTOTYPE
@@ -163,25 +167,45 @@ char* error_info;
   return error_num;
 }
 
+#ifdef CAN_PROTOTYPE
 PerlIO* bzfile_getiohandle( bzFile *obj ) {
+#else
+PerlIO* bzfile_getiohandle( obj ) bzFile *obj; {
+#endif
   return obj->handle;
 }
 
+#ifdef CAN_PROTOTYPE
 Bool bzfile_error( bzFile *obj ) {
+#else
+Bool bzfile_error( obj ) bzFile *obj; {
+#endif
   return obj!=NULL ? ( obj->bzip_errno ? True : False ) : global_bzip_errno ? True : False;
 }
 
+#ifdef CAN_PROTOTYPE
 int bzfile_geterrno( bzFile *obj ) {
+#else
+int bzfile_geterrno( obj ) bzFile *obj; {
+#endif
   return obj==NULL ? global_bzip_errno : obj->bzip_errno;
 }
 
+#ifdef CAN_PROTOTYPE
 const char *bzfile_geterrstr( bzFile *obj ) {
+#else
+const char *bzfile_geterrstr( obj ) bzFile *obj; {
+#endif
   int error_num = obj==NULL ? global_bzip_errno : obj->bzip_errno;
   char *errstr = error_num * -1 < 0 || error_num * -1 > 9 ? "Unknown" : (char *) bzerrorstrings[ error_num * -1 ];
   return errstr;
 }
 
+#ifdef CAN_PROTOTYPE
 Bool bzfile_eof( bzFile *obj ) {
+#else
+Bool bzfile_eof( obj ) bzFile *obj; {
+#endif
   return obj==NULL ? False :
     obj->bzip_errno == BZ_UNEXPECTED_EOF ? True :
     obj->bzip_errno == BZ_OK && obj->pending_io_error && obj->io_error == BZ_IO_EOF ? True :
@@ -189,20 +213,36 @@ Bool bzfile_eof( bzFile *obj ) {
     obj->io_error == BZ_IO_EOF ? True : False;
 }
 
+#ifdef CAN_PROTOTYPE
 long bzfile_total_in( bzFile *obj ) {
+#else
+long bzfile_total_in( obj ) bzFile *obj; {
+#endif
   return obj->total_in;
 }
 
+#ifdef CAN_PROTOTYPE
 long bzfile_total_out( bzFile *obj ) {
+#else
+long bzfile_total_out( obj ) bzFile *obj; {
+#endif
   return obj->total_out;
 }
 
-void bzfile_clear_totals( bzFile *obj ) {
+#ifdef CAN_PROTOTYPE
+long bzfile_clear_totals( bzFile *obj ) {
+#else
+long bzfile_clear_totals( obj ) bzFile *obj; {
+#endif
   obj->total_in = 0;
   obj->total_out = 0;
 }
 
+#ifdef CAN_PROTOTYPE
 int bzfile_clearerr( bzFile *obj ) {
+#else
+int bzfile_clearerr( obj ) bzFile *obj; {
+#endif
   int error_num = obj == NULL ? global_bzip_errno : obj->bzip_errno;
   int clear_flag = 1;
 
@@ -270,7 +310,12 @@ int bzfile_clearerr( bzFile *obj ) {
   return clear_flag;
 }
 
+#ifdef CAN_PROTOTYPE
 bzFile* bzfile_new( int verbosity, int small, int blockSize100k, int workFactor ) {
+#else
+bzFile* bzfile_new( verbosity, small, blockSize100k, workFactor )
+  int verbosity; int small; int blockSize100k; int workFactor; {
+#endif
   bzFile* obj = NULL;
 
   /* creates a new bzFile object */
@@ -324,8 +369,11 @@ bzFile* bzfile_new( int verbosity, int small, int blockSize100k, int workFactor 
   return obj;   
 }
 
-void
-bzfile_free( bzFile* obj ) {
+#ifdef CAN_PROTOTYPE
+void bzfile_free( bzFile* obj ) {
+#else
+void bzfile_free( obj ) bzFile* obj; {
+#endif
   if ( obj!=NULL ) Safefree((void*) obj);
 }
 
@@ -333,7 +381,11 @@ bzfile_free( bzFile* obj ) {
 /* param may be verbosity, small, blockSize100k or workFactor */
 /* if setting is -1, the param is not changed, but the current value is returned */
 /* returns -1 on error */
+#ifdef CAN_PROTOTYPE
 int bzfile_setparams( bzFile* obj, char* param, int setting ) {
+#else
+int bzfile_setparams( obj, param, setting ) bzFile* obj; char* param; int setting; {
+#endif
   int savsetting = -1;
 
   if ( param[0] == '-' ) param++;
@@ -406,7 +458,11 @@ int bzfile_setparams( bzFile* obj, char* param, int setting ) {
   return savsetting;
 }
 
+#ifdef CAN_PROTOTYPE
 bzFile* bzfile_open( char *filename, char *mode, bzFile *obj ) {
+#else
+bzFile* bzfile_open( filename, mode, obj ) char *filename; char *mode; bzFile *obj; {
+#endif
   int ret;
   PerlIO *io;
 
@@ -419,6 +475,10 @@ bzFile* bzfile_open( char *filename, char *mode, bzFile *obj ) {
     return NULL;
   }
 
+#if defined(_WIN32) || defined(OS2) || defined(MSDOS) || defined(__CYGWIN__) || defined(WIN32)
+  PerlIO_binmode(io, mode[0]=='w' ? '>' : '<', O_BINARY, Nullch);
+#endif
+
   if ( obj == NULL ) obj = bzfile_new( 0, 0, 9, 0 );
 
   obj->handle = io;
@@ -430,13 +490,21 @@ bzFile* bzfile_open( char *filename, char *mode, bzFile *obj ) {
   return obj;
 }
 
+#ifdef CAN_PROTOTYPE
 bzFile* bzfile_fdopen( PerlIO *io, char *mode, bzFile *obj ) {
+#else
+bzFile* bzfile_fdopen( io, mode, obj ) PerlIO *io; char *mode; bzFile *obj; {
+#endif
   int ret;
 
   if ( io == NULL ) {
     BZ_SETERR(obj, BZ_PARAM_ERROR, NULL);
     return NULL;
   }
+
+#if defined(_WIN32) || defined(OS2) || defined(MSDOS) || defined(__CYGWIN__) || defined(WIN32)
+  PerlIO_binmode(io, mode[0]=='w' ? '>' : '<', O_BINARY, Nullch);
+#endif
 
   if ( obj == NULL ) obj = bzfile_new( 0, 0, 9, 0 );
 
@@ -446,7 +514,11 @@ bzFile* bzfile_fdopen( PerlIO *io, char *mode, bzFile *obj ) {
   return obj;
 }
 
+#ifdef CAN_PROTOTYPE
 bzFile* bzfile_openstream( char *mode, bzFile *obj ) {
+#else
+bzFile* bzfile_openstream( mode, obj ) char *mode; bzFile *obj; {
+#endif
   if ( obj == NULL ) obj = bzfile_new( 0, 0, 1, 0 );
   if ( obj == NULL ) return NULL;
 
@@ -455,7 +527,11 @@ bzFile* bzfile_openstream( char *mode, bzFile *obj ) {
   return obj;
 }
 
-int bzfile_streambuf_deposit( bzFile* obj, char* buffer, int buflen ) {
+#ifdef CAN_PROTOTYPE
+void bzfile_streambuf_deposit( bzFile* obj, char* buffer, int buflen ) {
+#else
+void bzfile_streambuf_deposit( obj, buffer, buflen ) bzFile* obj; char* buffer; int buflen; {
+#endif
   /* inflate */
   /* insert compressed data into reading stream */
   obj->streamBuf = buffer;
@@ -464,7 +540,11 @@ int bzfile_streambuf_deposit( bzFile* obj, char* buffer, int buflen ) {
   obj->streamBufOffset = 0;
 }
 
+#ifdef CAN_PROTOTYPE
 int bzfile_streambuf_read( bzFile* obj, char* out, int outlen ) {
+#else
+int bzfile_streambuf_read( obj, out, outlen ) bzFile* obj; char* out; int outlen; {
+#endif
   /* inflate */
   /* read compressed data from buffer */
   char *in;
@@ -491,7 +571,11 @@ int bzfile_streambuf_read( bzFile* obj, char* out, int outlen ) {
   return i;
 }
 
+#ifdef CAN_PROTOTYPE
 void bzfile_streambuf_set( bzFile* obj, char* buffer, int bufsize ) {
+#else
+void bzfile_streambuf_set( obj, buffer, bufsize ) bzFile* obj; char* buffer; int bufsize; {
+#endif
   /* deflate */
   obj->streamBuf = buffer;
   obj->streamBufSize = bufsize;
@@ -499,7 +583,11 @@ void bzfile_streambuf_set( bzFile* obj, char* buffer, int bufsize ) {
   obj->streamBufOffset = 0;
 }
 
+#ifdef CAN_PROTOTYPE
 int bzfile_streambuf_write( bzFile* obj, char* in, int inlen ) {
+#else
+int bzfile_streambuf_write( obj, in, inlen ) bzFile* obj; char* in; int inlen; {
+#endif
   /* deflate */
   /* write compressed data to buffer */
 
@@ -526,7 +614,11 @@ int bzfile_streambuf_write( bzFile* obj, char* in, int inlen ) {
   return i;
 }
 
+#ifdef CAN_PROTOTYPE
 int bzfile_streambuf_collect( bzFile* obj, char* out, int outlen ) {
+#else
+int bzfile_streambuf_collect( obj, out, outlen ) bzFile* obj; char* out; int outlen; {
+#endif
   /* deflate */
   /* pull collected compressed data from buffer */
   int ret, before;
@@ -545,7 +637,11 @@ int bzfile_streambuf_collect( bzFile* obj, char* out, int outlen ) {
 /* success: 0 returned */
 /* failure: -1 returned, global error set */
 /* other error: -2 returned, global error already set */
+#ifdef CAN_PROTOTYPE
 int bzfile_flush( bzFile* obj ) {
+#else
+int bzfile_flush( obj ) bzFile* obj; {
+#endif
   int error_num = bzfile_geterrno( obj );
   int tracker;
   int compressed_bytes_count;
@@ -707,7 +803,11 @@ int bzfile_flush( bzFile* obj ) {
   return 0;
 }
 
+#ifdef CAN_PROTOTYPE
 int bzfile_close( bzFile* obj, int abandon ) {
+#else
+int bzfile_close( obj, abandon ) bzFile* obj; int abandon; {
+#endif
   /* returns zero on success, -1 on error */
   int ret;
 
@@ -726,7 +826,11 @@ int bzfile_close( bzFile* obj, int abandon ) {
   return ret != BZ_OK ? -1 : 0;
 }
 
+#ifdef CAN_PROTOTYPE
 int bzfile_closeread( bzFile* obj, int abandon ) {
+#else
+int bzfile_closeread( obj, abandon ) bzFile* obj; int abandon; {
+#endif
   int ret = BZ_OK;
 
   if (obj->open_status == OPEN_STATUS_WRITE || obj->open_status == OPEN_STATUS_WRITESTREAM)
@@ -746,7 +850,11 @@ int bzfile_closeread( bzFile* obj, int abandon ) {
   return BZ_SETERR(obj, ret, NULL);
 }
 
+#ifdef CAN_PROTOTYPE
 int bzfile_closewrite( bzFile* obj, int abandon ) {
+#else
+int bzfile_closewrite( obj, abandon ) bzFile* obj; int abandon; {
+#endif
   int error_num = bzfile_geterrno( obj );
   int ret = BZ_OK;
   int tracker;
@@ -887,7 +995,11 @@ int bzfile_closewrite( bzFile* obj, int abandon ) {
   return BZ_SETERR(obj, ret, NULL);
 }
 
+#ifdef CAN_PROTOTYPE
 int bzfile_readline( bzFile* obj, char *lineOfUncompress, int maxLineLength ) {
+#else
+int bzfile_readline( obj, lineOfUncompress, maxLineLength ) bzFile* obj; char *lineOfUncompress; int maxLineLength; {
+#endif
   int n = 0;
   int i;
   char *p = NULL;
@@ -945,7 +1057,11 @@ int bzfile_readline( bzFile* obj, char *lineOfUncompress, int maxLineLength ) {
   return bytes_read;
 }
 
+#ifdef CAN_PROTOTYPE
 int bzfile_read_notCompressed( bz_stream* strm, int *scan_BZh9 ) {
+#else
+int bzfile_read_notCompressed( strm, scan_BZh9 ) bz_stream* strm; int *scan_BZh9; {
+#endif
   char ch;
 
   while ( strm->avail_in>0 && strm->avail_out>0 ) {
@@ -965,7 +1081,11 @@ int bzfile_read_notCompressed( bz_stream* strm, int *scan_BZh9 ) {
   return BZ_OK;
 }
 
+#ifdef CAN_PROTOTYPE
 int bzfile_read( bzFile* obj, char *bufferOfUncompress, int nUncompress ) {
+#else
+int bzfile_read( obj, bufferOfUncompress, nUncompress ) bzFile* obj; char *bufferOfUncompress; int nUncompress; {
+#endif
   int ret;
   int tracker, rewind_mark;
   int bytes_uncompressed_count;
@@ -1282,7 +1402,11 @@ int bzfile_read( bzFile* obj, char *bufferOfUncompress, int nUncompress ) {
   }
 }
 
+#ifdef CAN_PROTOTYPE
 int bzfile_write( bzFile* obj, char *bufferOfUncompressed, int nUncompressed ) {
+#else
+int bzfile_write( obj, bufferOfUncompressed, nUncompressed ) bzFile* obj; char *bufferOfUncompressed; int nUncompressed; {
+#endif
   int ret;
   int tracker;
   int bytes_compressed_count = 0;
@@ -1522,7 +1646,7 @@ MY_new(...)
       obj = bzfile_new( 0, 0, 9, 0 );
 
       perlobj = newSV(0);
-      sv_setref_iv( perlobj, class, (int)obj );
+      sv_setref_iv( perlobj, class, PTR2IV(obj) );
       sv_2mortal(perlobj);
     }
 
@@ -1557,17 +1681,35 @@ MY_bzlibversion()
 
   CODE:
     RETVAL = (char *) BZ2_bzlibVersion();
+
   OUTPUT:
     RETVAL
 
+
+int
+MY_bz_seterror(error_num, error_str)
+  int error_num;
+  char *error_str;
+
+  PROTOTYPE: $$
+
+  CODE:
+  {
+    SV * bzerror_sv = perl_get_sv(BZERRNO, GV_ADDMULTI);
+    sv_setiv(bzerror_sv, error_num);
+    sv_setpv(bzerror_sv, error_str);
+    SvIOK_on(bzerror_sv);
+
+    RETVAL = error_num;
+  }
+
+  OUTPUT:
+    RETVAL
 
 SV *
 memBzip(string, level = 1)
   char* string
   int level
-
-  ALIAS:
-    compress = 1
 
   PROTOTYPE: $;$
 
@@ -1593,11 +1735,11 @@ memBzip(string, level = 1)
     RETVAL = newSV(5+out_len);
     SvPOK_only(RETVAL);
 
-    out = SvPVX(RETVAL);
+    out = (unsigned char *) SvPVX(RETVAL);
     new_len = out_len;
 
     out[0] = 0xf0;
-    err = BZ2_bzBuffToBuffCompress(out+5,&new_len,in,in_len,6,0,240);
+    err = BZ2_bzBuffToBuffCompress((char*) out+5, &new_len, (char*) in, in_len, 6, 0, 240);
 
     if (err != BZ_OK || new_len > out_len) {
       SvREFCNT_dec(RETVAL);
@@ -1617,10 +1759,10 @@ SV *
 memBunzip(string)
   char* string
 
+  PROTOTYPE: $
+
   ALIAS:
     decompress = 1
-
-  PROTOTYPE: $
 
   PREINIT:
     SV *		sv;
@@ -1642,9 +1784,9 @@ memBunzip(string)
     out_len = (in[1] << 24) | (in[2] << 16) | (in[3] << 8) | in[4];
     RETVAL = newSV(out_len > 0 ? out_len : 1);
     SvPOK_only(RETVAL);
-    out = SvPVX(RETVAL);
+    out = (unsigned char *) SvPVX(RETVAL);
     new_len = out_len;
-    err = BZ2_bzBuffToBuffDecompress(out,&new_len,in+5,in_len,0,0);
+    err = BZ2_bzBuffToBuffDecompress((char*) out, &new_len, (char*) in+5, in_len, 0, 0);
     if (err != BZ_OK || new_len != out_len) {
       SvREFCNT_dec(RETVAL);
       XSRETURN_UNDEF;
@@ -1737,7 +1879,7 @@ MY_bzopen(...)
 
     if ( perlobj == NULL ) {
       perlobj = newSV(0);
-      sv_setref_iv( perlobj, class, (int)obj );
+      sv_setref_iv( perlobj, class, PTR2IV(obj) );
       sv_2mortal(perlobj);
     }
 
@@ -2098,7 +2240,7 @@ MY_bzdeflateInit(...)
     bzfile_openstream( "w", obj );
 
     perlobj = newSV(0);
-    sv_setref_iv( perlobj, "Compress::Bzip2", (int)obj );
+    sv_setref_iv( perlobj, "Compress::Bzip2", PTR2IV(obj) );
     sv_2mortal(perlobj);
 
     if ( obj == NULL ) {
@@ -2244,7 +2386,7 @@ MY_bzinflateInit(...)
       bzfile_openstream( "r", obj );
 
       perlobj = newSV(0);
-      sv_setref_iv( perlobj, "Compress::Bzip2", (int)obj );
+      sv_setref_iv( perlobj, "Compress::Bzip2", PTR2IV(obj) );
       sv_2mortal(perlobj);
     }
 

@@ -1,21 +1,50 @@
+#! perl -w
+
+use strict;
 use 5.006;
+
 use ExtUtils::MakeMaker;
+use Config ;
+use File::Copy ;
+
+BEGIN
+{
+    eval { require File::Spec::Functions ; File::Spec::Functions->import() } ;
+    if ($@)
+    {
+        *catfile = sub { return "$_[0]/$_[1]" }
+    }
+}
+
+require VMS::Filespec if $^O eq 'VMS';
+
+my $BZLIB_LIB ;
+my $BZLIB_INCLUDE ;
+my $BUILD_BZLIB = 0 ;
+
+ParseCONFIG() ;
+
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
-    NAME              => 'Compress::Bzip2',
-    VERSION_FROM      => 'lib/Compress/Bzip2.pm', # finds $VERSION
-    PREREQ_PM         => {}, # e.g., Module::Name => 1.1
-    ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
-      (ABSTRACT_FROM  => 'lib/Compress/Bzip2.pm', # retrieve abstract from module
-       AUTHOR         => 'Rob Janes <rwjanes@primus.ca>') : ()),
-    LIBS              => ['-lbz2'], # e.g., '-lm'
-    DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
-    INC               => '-I.', # e.g., '-I. -I/usr/include/other'
-	# Un-comment this if you add C files to link with later:
-    # OBJECT            => '$(O_FILES)', # link all the C files too
-	clean => {FILES=>'const-c.inc const-xs.inc t/???-tmp-* junk* *~ lib/Compress/*~ t/*~'},
+	      NAME              => 'Compress::Bzip2',
+	      VERSION_FROM      => 'lib/Compress/Bzip2.pm',
+	      PREREQ_PM         => {},
+	      XS	 	=> { 'Bzip2.xs'    => 'Bzip2.c' },
+	      ($] >= 5.005 ?
+	       (ABSTRACT_FROM  => 'lib/Compress/Bzip2.pm',
+		AUTHOR         => 'Rob Janes <rwjanes@primus.ca>') : ()),
+	      LIBS              => $BUILD_BZLIB ? [] : [ $BZLIB_LIB ? "-l$BZLIB_LIB" : '-lbz2' ],
+	      DEFINE            => '',
+	      INC               => $BUILD_BZLIB ? '-Ibzlib-src' : $BZLIB_INCLUDE ? "-I$BZLIB_INCLUDE" : '',
+	      # OBJECT          => '$(O_FILES)', # link all the C files too
+	      $BUILD_BZLIB ? ( MYEXTLIB          => 'bzlib-src/libbz2$(LIB_EXT)' ) : ( ),
+	      clean             => {FILES=>'const-c.inc const-xs.inc t/???-tmp-* junk* *~ lib/Compress/*~ t/*~ bztest show_bzversion'},
+	      depend            => { 'Makefile'	  => 'config.in' },
+	      NORECURS          => $BUILD_BZLIB ? 0 : 1,
+	      NO_META           => 1,
 );
+
 if  (eval {require ExtUtils::Constant; 1}) {
   # If you edit these definitions to change the constants used by this module,
   # you will need to use the generated const-c.inc and const-xs.inc
@@ -42,4 +71,109 @@ else {
     my $fallback = File::Spec->catfile('fallback', $file);
     copy ($fallback, $file) or die "Can't copy $fallback to $file: $!";
   }
+}
+
+sub MY::postamble {
+  !$BUILD_BZLIB ? '' :
+'
+$(MYEXTLIB): bzlib-src/Makefile
+	cd bzlib-src && $(MAKE) $(PASSTHRU)
+';
+}
+
+sub ParseCONFIG {
+    my ($k, $v) ;
+    my @badkey = () ;
+    my %Info = () ;
+    my @Options = qw( INCLUDE LIB BUILD_BZLIB ) ;
+    my %ValidOption = map {$_, 1} @Options ;
+    my %Parsed = %ValidOption ;
+    my $CONFIG = 'config.in' ;
+
+    print "Parsing $CONFIG...\n" ;
+
+    open(F, "<$CONFIG") or die "Cannot open file $CONFIG: $!\n" ;
+    while (<F>) {
+      chomp;
+      s/#.*$//;
+      next if !/\S/;
+
+	($k, $v) = split(/\s+=\s+/, $_, 2) ;
+	$k = uc $k ;
+
+	if ($ValidOption{$k}) {
+	    delete $Parsed{$k} ;
+	    $Info{$k} = $v ;
+	}
+	else {
+	    push(@badkey, $k) ;
+	}
+    }
+    close F ;
+
+    print "Unknown keys in $CONFIG ignored [@badkey]\n"
+	if @badkey ;
+
+    # check parsed values
+    my @missing = () ;
+    die "The following keys are missing from $CONFIG  [@missing]\n" 
+        if @missing = keys %Parsed ;
+
+    $BZLIB_INCLUDE = $ENV{'BZLIB_INCLUDE'} || $Info{'INCLUDE'} ;
+    $BZLIB_LIB = $ENV{'BZLIB_LIB'} || $Info{'LIB'} ;
+
+    if ($^O eq 'VMS') {
+        $BZLIB_INCLUDE = VMS::Filespec::vmspath($BZLIB_INCLUDE);
+        $BZLIB_LIB = VMS::Filespec::vmspath($BZLIB_LIB);
+    }
+
+    my $x = defined($ENV{BUILD_BZLIB}) ? $ENV{BUILD_BZLIB} : $Info{BUILD_BZLIB};
+    $x = 0 if !$x;
+
+    if ( $x =~ /^yes|on|true|1$/i ) {
+      $BUILD_BZLIB = 1;
+
+      print "Building internal libbz2 enabled\n" ;
+    }
+    elsif ( $x =~ /^test$/i ) {
+      undef $BUILD_BZLIB;
+
+      ## prefix libpth locincpth
+      my $command = $Config{cc} .
+	  ' '. $Config{ccflags} .
+	  ' '. $Config{ldflags} .
+	  ' -lbz2 -o show_bzversion show_bzversion.c';
+
+      #print "command $command\n";
+      if ( !system( $command ) ) {
+	if ( -x 'show_bzversion' && -s 'show_bzversion' ) {
+	  my $version = `./show_bzversion`;
+	  if ( $version ) {
+	    $BUILD_BZLIB = 0;
+	    print "found bzip2 $version\n";
+	  }
+	  else {
+	    $BUILD_BZLIB = 1;
+	    print "system bzip2 not useable, building internal libbz2\n";
+	  }
+	}
+	else {
+	  $BUILD_BZLIB = 1;
+	  print "system bzip2 not useable, building internal libbz2\n";
+	}
+      }
+      else {
+	$BUILD_BZLIB = 1;
+	print "bzip2 not found, building internal libbz2\n";
+      }
+    }
+
+    print <<EOM if 0 ;
+    INCLUDE	[$BZLIB_INCLUDE]
+    LIB		[$BZLIB_LIB]
+
+EOM
+
+    print "Looks Good.\n" ;
+
 }

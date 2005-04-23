@@ -1,19 +1,30 @@
 # -*- mode: perl -*-
 
 use Test::More tests => 5;
+#use Test::More qw(no_plan);
 
-## uncompress a compressed simple text file - the lyrics to end of the world REM
+## uncompress sample3 compressed file from the bzip2 1.0.2 distribution
 ## compare against bunzip2 command with od -x and diff
 
 BEGIN {
   use_ok('Compress::Bzip2');
 };
 
+do 't/lib.pl';
+
+my $debugf = 0;
+
+my $INFILE = 'bzlib-src/sample3.bz2';
+( my $MODELFILE = $INFILE ) =~ s/\.bz2$/.ref/;
+my $PREFIX = 't/033-tmp';
+my $BZIP = -x 'bzlib-src/bzip2' ? 'bzlib-src/bzip2' : 'bzip2';
+
+
 my $out;
-open( $out, "> t/033-tmp-sample.txt" );
+open( $out, "> $PREFIX-sample.txt" );
 
 my $d = Compress::Bzip2->new( -verbosity => 0 );
-$d->bzopen( "t/033-sample.bz2", "r" );
+$d->bzopen( $INFILE, "r" );
 
 ok( $d, "open was successful" );
 
@@ -38,7 +49,8 @@ ok( !$res, "file was closed $res $Compress::Bzip2::bzerrno" );
 
 close($out);
 
-system( 'bunzip2 < t/033-sample.bz2 > t/033-tmp-reference.txt' );
-system( 'diff -c t/033-tmp-sample.txt t/033-tmp-reference.txt > t/033-tmp-diff.txt' );
+#system( "bunzip2 < $INFILE > $PREFIX-reference.txt" );
+#system( "diff $PREFIX-sample.txt $PREFIX-reference.txt > $PREFIX-diff.txt" );
+#ok( ! -s "$PREFIX-diff.txt", "no differences with bunzip2" );
 
-ok( ! -s 't/033-tmp-diff.txt', "no differences with bunzip2" );
+ok ( compare_binary_files( "$PREFIX-sample.txt", $MODELFILE ), "no differences with decompressing $INFILE" );

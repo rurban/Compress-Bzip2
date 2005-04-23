@@ -10,9 +10,14 @@ BEGIN {
   use_ok('Compress::Bzip2');
 };
 
-my $debugf;
-my $INFILE = 't/030-sample.bz2';
+do 't/lib.pl';
+
+my $debugf = 0;
+
+my $INFILE = 'bzlib-src/sample0.bz2';
+( my $MODELFILE = $INFILE ) =~ s/\.bz2$/.ref/;
 my $PREFIX = 't/035-tmp';
+my $BZIP = -x 'bzlib-src/bzip2' ? 'bzlib-src/bzip2' : 'bzip2';
 
 my $out;
 open( $out, "> $PREFIX-sample.txt" );
@@ -37,22 +42,19 @@ while ( $read = $d->bzread( $buf, 512 ) ) {
   $counter++;
 }
 
-ok( $counter, "$counter data was written, $bytes bytes" );
+ok( $counter, "$counter blocks were written, $bytes bytes" );
 
 my $res = $d->bzclose;
 ok( !$res, "file was closed $res $Compress::Bzip2::bzerrno" );
 
 close($out);
 
-system( "bunzip2 < $INFILE > $PREFIX-reference.txt" );
-system( "diff -c $PREFIX-sample.txt $PREFIX-reference.txt > $PREFIX-diff.txt" );
-
-ok( ! -s "$PREFIX-diff.txt", "no differences with bunzip2" );
+ok ( compare_binary_files( "$PREFIX-sample.txt", $MODELFILE ), 'no differences with decompressing $INFILE' );
 
 ## test readline
 
 my ($rlin, %reflines, %lines);
-open( $rlin, "< $PREFIX-reference.txt" ) or die;
+open( $rlin, "< $MODELFILE" ) or die;
 while (<$rlin>) {
   chomp;
   $reflines{count}++;
