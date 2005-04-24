@@ -1,19 +1,50 @@
 Installation
 ============
 
-  Short Instructions
-  ------------------
-  1. Build and install Perl (5.004 or newer)
-  2. Get a copy of bzip2-1.0.2.tar.gz
-     from the WebServer: http://www.muraroa.demon.co.uk
-     Build and install the Bzip2 library (0.9.0c)
-     e.g. Library  libbz2.a                to /usr/local/lib
-          Includes bzlib.h bzlib_private.h to /usr/local/include
-  3. Edit the file `Makefile.PL' if you've installed the Bzip2-library
-     in an unusal place
-  4. Run "./configure"
-  5. Run "make"
-  6. Test the module by runnning "make test"
-  7. Optional: run "strip ./blib/arch/auto/Compress/Bzip2/Bzip2.so"
-  8. Run "make install" to install the module (when logged in as root)
+perl Makefile.PL
+make
+make test
+make install
+
+Tweakings to find the bzip2 distribution
+========================================
+
+Useful Environment variables
+============================
+
+Set these in the environment prior to running "perl Makefile.PL".
+
+BUILD_BZLIB=Test
+BZLIB_LIB=
+BZLIB_INCLUDE=
+
+Set BZLIB_INCLUDE to the directory with bzlib.h in it.  There is no default.
+
+Set BZLIB_LIB to the directory with libbz2.a in it.  There is no default.
+
+BUILD_BZLIB is a flag variable to control the building of
+the internal, encapsulated version of bzip2 1.0.2.  The default is
+BUILD_BZLIB=Test.
+
+BUILD_BZLIB=1
+* Means use the internal bzip2 distribution.
+
+BUILD_BZLIB=0
+* Means don't.  ever.
+
+BUILD_BZLIB=Test
+* Means try to compile a short program (show_bzversion.c) with the
+  standard perl xs compile stuff, plus the settings for BZLIB_INCLUDE
+  and BZLIB_LIB, if any.  If it fails, use the internal bzip2.  If it
+  succeeds, rely on the system bzip2.
+
+The defaults for these environment variables are in config.in.
+
+config.in
+=========
+
+# starts a comment.
+
+Has default settings for BUILD_BZLIB, BZLIB_INCLUDE, BZLIB_LIB.
+
 

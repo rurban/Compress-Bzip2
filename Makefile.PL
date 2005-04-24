@@ -87,98 +87,103 @@ $(MYEXTLIB): bzlib-src/Makefile
 }
 
 sub ParseCONFIG {
-    my ($k, $v) ;
-    my @badkey = () ;
-    my %Info = () ;
-    my @Options = qw( INCLUDE LIB BUILD_BZLIB ) ;
-    my %ValidOption = map {$_, 1} @Options ;
-    my %Parsed = %ValidOption ;
-    my $CONFIG = 'config.in' ;
+  my ($k, $v) ;
+  my @badkey = () ;
+  my %Info = () ;
+  my @Options = qw( BZLIB_INCLUDE BZLIB_LIB BUILD_BZLIB ) ;
+  my %ValidOption = map {$_, 1} @Options ;
+  my %Parsed = %ValidOption ;
+  my $CONFIG = 'config.in' ;
 
-    print "Parsing $CONFIG...\n" ;
+  print "Parsing $CONFIG...\n" ;
 
-    open(F, "<$CONFIG") or die "Cannot open file $CONFIG: $!\n" ;
+  if (!open(F, "<$CONFIG")) {
+    warn "warning: failed to open $CONFIG: $!\n";
+  }
+  else {
     while (<F>) {
       chomp;
       s/#.*$//;
       next if !/\S/;
 
-	($k, $v) = split(/\s+=\s+/, $_, 2) ;
-	$k = uc $k ;
+      ($k, $v) = split(/\s*=\s*/, $_, 2) ;
+      $k = uc $k ;
 
-	if ($ValidOption{$k}) {
-	    delete $Parsed{$k} ;
-	    $Info{$k} = $v ;
-	}
-	else {
-	    push(@badkey, $k) ;
-	}
+      if ($ValidOption{$k}) {
+	delete $Parsed{$k} ;
+	$Info{$k} = $v ;
+      }
+      else {
+	push(@badkey, $k) ;
+      }
     }
     close F ;
+  }
 
-    print "Unknown keys in $CONFIG ignored [@badkey]\n"
-	if @badkey ;
+  print "Unknown keys in $CONFIG ignored [@badkey]\n"
+      if @badkey ;
 
-    # check parsed values
-    my @missing = () ;
-    die "The following keys are missing from $CONFIG  [@missing]\n" 
-        if @missing = keys %Parsed ;
+  $BZLIB_INCLUDE = $ENV{'BZLIB_INCLUDE'} || $Info{'BZLIB_INCLUDE'} ;
+  $BZLIB_LIB = $ENV{'BZLIB_LIB'} || $Info{'BZLIB_LIB'} ;
 
-    $BZLIB_INCLUDE = $ENV{'BZLIB_INCLUDE'} || $Info{'INCLUDE'} ;
-    $BZLIB_LIB = $ENV{'BZLIB_LIB'} || $Info{'LIB'} ;
+  if ($^O eq 'VMS') {
+    $BZLIB_INCLUDE = VMS::Filespec::vmspath($BZLIB_INCLUDE);
+    $BZLIB_LIB = VMS::Filespec::vmspath($BZLIB_LIB);
+  }
 
-    if ($^O eq 'VMS') {
-        $BZLIB_INCLUDE = VMS::Filespec::vmspath($BZLIB_INCLUDE);
-        $BZLIB_LIB = VMS::Filespec::vmspath($BZLIB_LIB);
-    }
+  my $x = defined($ENV{BUILD_BZLIB}) ? $ENV{BUILD_BZLIB} : $Info{BUILD_BZLIB};
+  $x = 'Test' if !defined($x);
 
-    my $x = defined($ENV{BUILD_BZLIB}) ? $ENV{BUILD_BZLIB} : $Info{BUILD_BZLIB};
-    $x = 0 if !$x;
+  if ( $x =~ /^yes|on|true|1$/i ) {
+    $BUILD_BZLIB = 1;
 
-    if ( $x =~ /^yes|on|true|1$/i ) {
-      $BUILD_BZLIB = 1;
+    print "Building internal libbz2 enabled\n" ;
+  }
+  elsif ( $x =~ /^test$/i ) {
+    undef $BUILD_BZLIB;
 
-      print "Building internal libbz2 enabled\n" ;
-    }
-    elsif ( $x =~ /^test$/i ) {
-      undef $BUILD_BZLIB;
+    ## prefix libpth locincpth
+    my $command = $Config{cc} .
+	' '. $Config{ccflags} .
+	( $BZLIB_INCLUDE ? " -I$BZLIB_INCLUDE" : '' ) .
+	' '. $Config{ldflags} .
+	( $BZLIB_LIB ? " -L$BZLIB_LIB" : '' ) .
+	' -lbz2 -o show_bzversion show_bzversion.c';
 
-      ## prefix libpth locincpth
-      my $command = $Config{cc} .
-	  ' '. $Config{ccflags} .
-	  ' '. $Config{ldflags} .
-	  ' -lbz2 -o show_bzversion show_bzversion.c';
-
-      #print "command $command\n";
-      if ( !system( $command ) ) {
-	if ( -x 'show_bzversion' && -s 'show_bzversion' ) {
-	  my $version = `./show_bzversion`;
-	  if ( $version ) {
-	    $BUILD_BZLIB = 0;
-	    print "found bzip2 $version\n";
-	  }
-	  else {
-	    $BUILD_BZLIB = 1;
-	    print "system bzip2 not useable, building internal libbz2\n";
-	  }
+    #print "command $command\n";
+    if ( !system( $command ) ) {
+      if ( -x 'show_bzversion' && -s 'show_bzversion' ) {
+	my $version = `./show_bzversion`;
+	if ( $version ) {
+	  $BUILD_BZLIB = 0;
+	  print "found bzip2 $version\n";
 	}
 	else {
 	  $BUILD_BZLIB = 1;
+	  print "compile command '$command' failed\n";
 	  print "system bzip2 not useable, building internal libbz2\n";
 	}
       }
       else {
 	$BUILD_BZLIB = 1;
-	print "bzip2 not found, building internal libbz2\n";
+	print "compile command '$command' failed\n";
+	print "system bzip2 not useable, building internal libbz2\n";
       }
     }
+    else {
+      $BUILD_BZLIB = 1;
+      print "compile command '$command' failed\n";
+      print "system bzip2 not found, building internal libbz2\n";
+    }
+  }
 
-    print <<EOM if 0 ;
-    INCLUDE	[$BZLIB_INCLUDE]
-    LIB		[$BZLIB_LIB]
+  print <<EOM if 0 ;
+INCLUDE	[$BZLIB_INCLUDE]
+LIB	[$BZLIB_LIB]
 
 EOM
+;
 
-    print "Looks Good.\n" ;
+  print "Looks Good.\n" ;
 
 }

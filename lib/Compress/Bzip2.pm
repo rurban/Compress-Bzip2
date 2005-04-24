@@ -1,7 +1,7 @@
 # File	  : Bzip2.pm
 # Author  : Rob Janes
 # Created : 14 April 2005
-# Version : 2.01
+# Version : 2.03
 #
 #     Copyright (c) 2005 Rob Janes. All rights reserved.
 #     This program is free software; you can redistribute it and/or
@@ -125,7 +125,7 @@ $EXPORT_TAGS{'all'} = [ @EXPORT_OK ];
 
 our @EXPORT = ( @{ $EXPORT_TAGS{'utilities'} }, @{ $EXPORT_TAGS{'constants'} } );
 
-our $VERSION = "2.02";
+our $VERSION = "2.03";
 
 our $bzerrno = "";
 our $gzerrno;

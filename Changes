@@ -1,11 +1,26 @@
 Revision history for Perl extension Compress::Bzip2.
 
 2.00 Wed Apr 13 16:33:35 2005
-      - original version; created by h2xs 1.23 with options
-	-b 5.6.0 -n Compress::Bzip2 bzlib.h
-      - complete re-write of 1.0 with 1.02 patches.
 
-2.01 Wed Apr 20 2005
+This is a complete re-write of Compress::Bzip2.  I left the in-memory
+compress routines much as is, compress and decompress.
+
+(re)created by h2xs 1.23 with options
+	-b 5.6.0 -n Compress::Bzip2 bzlib.h
+
+I wanted Compress::Zlib compatibility cause I have s/w that uses
+Compress::Zlib and I wanted an easy migration path, since bzlib gives
+about 20-30% better compression on ascii files than gzip.
+
+This is a 2.x release.  Since there was a change in authorship, I
+figured I should bump the major version number.  I could have easily
+given this a slightly different name.  Given the minimal functionality
+of version 1, that didn't seem like a useful thing to do.  Heck,
+version 1 doesn't even work with bzlib 1.x, you have to patch in the
+BZ2_ prefixes, so my guess is that Compress::Bzip2 isn't being used
+in a lot of places.
+
+2.01 Sat Apr 23 2005
      - cleaned up for 64bit, HPUX PA-RISC 2.0W and itanium
 	 - fleshed out the Compress::Zlib compatibility, added a
 	   couple of tests for it.
@@ -18,3 +33,6 @@ Revision history for Perl extension Compress::Bzip2.
 	 - added a test to the Makefile.PL to determine whether or
 	   not the internal Bzlib is necessary.
 
+2.02 Sat Apr 23 2005
+	 - 2.01 rejected by PAUSE because the META.yml was invalid
+	 - learned how to do "make dist"
