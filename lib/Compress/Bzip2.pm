@@ -125,7 +125,7 @@ $EXPORT_TAGS{'all'} = [ @EXPORT_OK ];
 
 our @EXPORT = ( @{ $EXPORT_TAGS{'utilities'} }, @{ $EXPORT_TAGS{'constants'} } );
 
-our $VERSION = "2.03";
+our $VERSION = "2.04";
 
 our $bzerrno = "";
 our $gzerrno;

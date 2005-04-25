@@ -34,7 +34,7 @@ WriteMakefile(
 	      ($] >= 5.005 ?
 	       (ABSTRACT_FROM  => 'lib/Compress/Bzip2.pm',
 		AUTHOR         => 'Rob Janes <rwjanes@primus.ca>') : ()),
-	      LIBS              => $BUILD_BZLIB ? [] : [ $BZLIB_LIB ? "-l$BZLIB_LIB" : '-lbz2' ],
+	      LIBS              => $BUILD_BZLIB ? [] : [ $BZLIB_LIB ? "-L$BZLIB_LIB -lbz2" : '-lbz2' ],
 	      DEFINE            => '',
 	      INC               => $BUILD_BZLIB ? '-Ibzlib-src' : $BZLIB_INCLUDE ? "-I$BZLIB_INCLUDE" : '',
 	      # OBJECT          => '$(O_FILES)', # link all the C files too
@@ -147,8 +147,9 @@ sub ParseCONFIG {
 	' '. $Config{ccflags} .
 	( $BZLIB_INCLUDE ? " -I$BZLIB_INCLUDE" : '' ) .
 	' '. $Config{ldflags} .
+	' -o show_bzversion show_bzversion.c' .
 	( $BZLIB_LIB ? " -L$BZLIB_LIB" : '' ) .
-	' -lbz2 -o show_bzversion show_bzversion.c';
+	' -lbz2';
 
     #print "command $command\n";
     if ( !system( $command ) ) {

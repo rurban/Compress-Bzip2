@@ -21,18 +21,32 @@ BZ2_ prefixes, so my guess is that Compress::Bzip2 isn't being used
 in a lot of places.
 
 2.01 Sat Apr 23 2005
-     - cleaned up for 64bit, HPUX PA-RISC 2.0W and itanium
-	 - fleshed out the Compress::Zlib compatibility, added a
-	   couple of tests for it.
-	 - added bzip2, bunzip2 and bzcat, which act like the bzip
-	   commands.
-	 - added some compatibility for windows, can't test it out really
-	 - added the bzlib library underneath
-	 - changed the test suite so that it does not rely on bzip2
-	   being installed.
-	 - added a test to the Makefile.PL to determine whether or
-	   not the internal Bzlib is necessary.
+   - cleaned up for 64bit, HPUX PA-RISC 2.0W and itanium
+   - fleshed out the Compress::Zlib compatibility, added a
+     couple of tests for it.
+   - added bzip2, bunzip2 and bzcat, which act like the bzip
+     commands.
+   - added some compatibility for windows, can't test it out really
+   - added the bzlib library underneath
+   - changed the test suite so that it does not rely on bzip2
+     being installed.
+   - added a test to the Makefile.PL to determine whether or
+     not the internal Bzlib is necessary.
 
 2.02 Sat Apr 23 2005
-	 - 2.01 rejected by PAUSE because the META.yml was invalid
-	 - learned how to do "make dist"
+   - 2.01 rejected by PAUSE because the META.yml was invalid
+   - learned how to do "make dist"
+
+2.03 Sun Apr 24 2005
+   - didn't have config.in in the MANIFEST, the tarball was unbuildable.
+   - rewrote the INSTALL, README to give help on the config.in options
+     for locating your bzip2 installation.
+
+2.04 Mon Apr 25 2005
+   - tested different styles of builds.  confirmed some errors in the
+     Makefile.PL test for bzip2 that were pointed out by Sisyphus.
+   - Sisyphus reported some changes necessary for windows builds.  I
+     injected those changes into the code.  one of them, adding
+     aTHX_ to the call to PerlIO_binmode seems like a perl version
+     thing.
+   - added tests for internal_bzlib, copied from bzip2 1.0.2.

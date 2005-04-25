@@ -47,10 +47,7 @@ ok( !$res, "file was closed $res $Compress::Bzip2::bzerrno" );
 
 close($in);
 
-system( "bzip2 < $INFILE | od -x > $PREFIX-reference-bz2.odx" );
-system( "od -x < $PREFIX-protected.bz2 | diff - $PREFIX-reference-bz2.odx > $PREFIX-diff.txt" );
-
-ok( ! -s "$PREFIX-diff.txt", "no differences with bzip2" );
+ok ( compare_binary_files( $MODELFILE, "$PREFIX-protected.bz2" ), "no differences with $MODELFILE reference" );
 
 chmod( 0000, "$PREFIX-protected.bz2" ) or die;
 

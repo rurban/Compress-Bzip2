@@ -85,3 +85,9 @@ bzlib-src/win-libbz2.dsp
 bzlib-src/win-makefile.msc
 bzlib-src/win-tst-dlltest.c
 bzlib-src/win-tst-dlltest.dsp
+bzlib-src/words0
+bzlib-src/words1
+bzlib-src/words2
+bzlib-src/words3
+bzlib-src/t/01-baseline.t
+bzlib-src/t/lib.pl

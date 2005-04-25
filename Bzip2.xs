@@ -476,7 +476,7 @@ bzFile* bzfile_open( filename, mode, obj ) char *filename; char *mode; bzFile *o
   }
 
 #if defined(_WIN32) || defined(OS2) || defined(MSDOS) || defined(__CYGWIN__) || defined(WIN32)
-  PerlIO_binmode(io, mode[0]=='w' ? '>' : '<', O_BINARY, Nullch);
+  PerlIO_binmode(aTHX_ io, mode[0]=='w' ? '>' : '<', O_BINARY, Nullch);
 #endif
 
   if ( obj == NULL ) obj = bzfile_new( 0, 0, 9, 0 );
@@ -503,7 +503,7 @@ bzFile* bzfile_fdopen( io, mode, obj ) PerlIO *io; char *mode; bzFile *obj; {
   }
 
 #if defined(_WIN32) || defined(OS2) || defined(MSDOS) || defined(__CYGWIN__) || defined(WIN32)
-  PerlIO_binmode(io, mode[0]=='w' ? '>' : '<', O_BINARY, Nullch);
+  PerlIO_binmode(aTHX_ io, mode[0]=='w' ? '>' : '<', O_BINARY, Nullch);
 #endif
 
   if ( obj == NULL ) obj = bzfile_new( 0, 0, 9, 0 );
@@ -2033,18 +2033,17 @@ MY_bzerror(obj)
 
   PROTOTYPE: $
 
-  INIT:
-    int error_num;
-
   CODE:
   {
-    error_num = bzfile_geterrno( obj );
-    if ( error_num == 0 )
+    int err_num;
+    err_num = bzfile_geterrno( obj );
+
+    if ( err_num == 0 )
       XSRETURN_NO;
 
-    RETVAL = newSViv( error_num );
+    RETVAL = newSViv( err_num );
 
-    sv_setiv(RETVAL, error_num) ;
+    sv_setiv(RETVAL, err_num) ;
     sv_setpv(RETVAL, (char*) bzfile_geterrstr( obj ));
     SvIOK_on(RETVAL);		/* say "IAM integer (too)" */
   }
