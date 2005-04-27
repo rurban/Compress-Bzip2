@@ -1713,6 +1713,9 @@ memBzip(string, level = 1)
 
   PROTOTYPE: $;$
 
+  ALIAS:
+    compress = 1
+
   PREINIT:
 	SV *		sv;
 	STRLEN		len;

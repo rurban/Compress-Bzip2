@@ -8,12 +8,13 @@ BEGIN {
   use_ok('Compress::Bzip2');
 };
 
+our ( $debugf, $BZIP );
+
 do 't/lib.pl';
 
-my $debugf = 0;
-my $INFILE = 'bzlib-src/sample0.ref';
+my $INFILE = catfile( qw(bzlib-src sample0.ref) );
 ( my $MODELFILE = $INFILE ) =~ s/\.ref$/.bz2/;
-my $PREFIX = 't/041-tmp';
+my $PREFIX = catfile( qw(t 041-tmp) );
 
 ## verbosity 0-4, small 0,1, blockSize100k 1-9, workFactor 0-250, readUncompressed 0,1
 my ( $d, $err, $in, $out, $buf, $res );

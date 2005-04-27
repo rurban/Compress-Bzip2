@@ -1,3 +1,17 @@
+use File::Copy ;
+
+BEGIN {
+  eval { require File::Spec::Functions ; File::Spec::Functions->import( qw(catfile rel2abs) ) } ;
+  *catfile = sub { return join( '/', @_ ) } if $@;
+}
+
+require VMS::Filespec if $^O eq 'VMS';
+
+$::BZIP = $ENV{BZLIB_BIN} ? catfile( $ENV{BZLIB_BIN}, 'bzip2') :
+    -x 'bzip2' ? rel2abs( 'bzip2' ) : 'bzip2';
+
+$::debugf = $ENV{DEBUG};
+
 sub dump_block {
   my %block;
   ( $block{1}, $block{2} ) = @_;

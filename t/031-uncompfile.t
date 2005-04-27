@@ -10,14 +10,13 @@ BEGIN {
   use_ok('Compress::Bzip2');
 };
 
+our ( $debugf, $BZIP );
+
 do 't/lib.pl';
 
-my $debugf = 0;
-
-my $INFILE = 'bzlib-src/sample1.bz2';
+my $INFILE = catfile( qw(bzlib-src sample1.bz2) );
 ( my $MODELFILE = $INFILE ) =~ s/\.bz2$/.ref/;
-my $PREFIX = 't/031-tmp';
-my $BZIP = -x 'bzlib-src/bzip2' ? 'bzlib-src/bzip2' : 'bzip2';
+my $PREFIX = catfile( qw(t 031-tmp) );
 
 my $out;
 open( $out, "> $PREFIX-sample.txt" );

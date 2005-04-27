@@ -12,12 +12,9 @@ BEGIN {
 
 do 't/lib.pl';
 
-my $debugf = 0;
-
-my $INFILE = 'bzlib-src/sample2.bz2';
+my $INFILE = catfile( qw(bzlib-src sample2.bz2) );
 ( my $MODELFILE = $INFILE ) =~ s/\.bz2$/.ref/;
-my $PREFIX = 't/032-tmp';
-my $BZIP = -x 'bzlib-src/bzip2' ? 'bzlib-src/bzip2' : 'bzip2';
+my $PREFIX = catfile( qw(t 032-tmp) );
 
 
 my $out;

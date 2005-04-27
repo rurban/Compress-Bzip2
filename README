@@ -1,9 +1,9 @@
 
 Compress::Bzip2
 
-Version 2.03
+Version 2.05
 
-24 April 2005
+26 April 2005
 
 The subdirectory bzlib-src contains most of the files from the 1.0.2
 distribution of bzip2.  See the README in there for more information.
@@ -58,7 +58,8 @@ rewrite.
 
 Copyright
 =========
-bzip2: Julian Seward <jseward@acm.org>
+bzip2
+Julian Seward, j s e w a r d   a t   a c m . o r g
 
 Compress-Bzip2 is distributed under the terms of the
 GNU General Public License (GPL).  See the file COPYING.
@@ -67,13 +68,17 @@ Many Thanks to:
 ===============
 
 Author of bzip2:
-Julian Seward <jseward@acm.org>, Cambridge, UK
+Julian Seward, j s e w a r d   a t   a c m . o r g
+Cambridge, UK
 http://sources.redhat.com/bzip2
 
 Author of Compress::Zlib:
-Paul Marquess <pmqs@cpan.org>
+Paul Marquess, p m q s   a t   c p a n . o r g
 http://www.cpan.org
 
 Author of 1.x Compress::Bzip2 (1999)
 Gawdi Azem <azemgi@rupert.informatik.uni-stuttgart.de>
 (last known email, no longer valid)
+
+Sisyphus, helped out with win32 compatibility
+s i s y p h u s 1   a t   o p t u s n e t . c o m . a u

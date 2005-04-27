@@ -17,10 +17,13 @@ Set these in the environment prior to running "perl Makefile.PL".
 BUILD_BZLIB=Test
 BZLIB_LIB=
 BZLIB_INCLUDE=
+BZLIB_BIN=
 
 Set BZLIB_INCLUDE to the directory with bzlib.h in it.  There is no default.
 
 Set BZLIB_LIB to the directory with libbz2.a in it.  There is no default.
+
+Set BZLIB_BIN to the directory with the bzip2 command in it.  There is no default.
 
 BUILD_BZLIB is a flag variable to control the building of
 the internal, encapsulated version of bzip2 1.0.2.  The default is
@@ -45,6 +48,6 @@ config.in
 
 # starts a comment.
 
-Has default settings for BUILD_BZLIB, BZLIB_INCLUDE, BZLIB_LIB.
+Has default settings for BUILD_BZLIB, BZLIB_INCLUDE, BZLIB_LIB, BZLIB_BIN.
 
 

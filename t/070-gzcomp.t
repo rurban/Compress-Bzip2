@@ -13,10 +13,9 @@ BEGIN {
 
 do 't/lib.pl';
 
-my $debugf = 0;
-my $INFILE = 'bzlib-src/sample0.ref';
+my $INFILE = catfile( qw(bzlib-src sample0.ref) );
 ( my $MODELFILE = $INFILE ) =~ s/\.ref$/.bz2/;
-my $PREFIX = 't/020-tmp';
+my $PREFIX = catfile( qw(t 020-tmp) );
 
 my $in;
 open( $in, $INFILE );

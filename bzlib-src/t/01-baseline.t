@@ -1,13 +1,13 @@
 # -*- mode: perl -*-
 
-#use Test::More tests => 5;
-use Test::More qw(no_plan);
+use Test::More tests => 6;
+#use Test::More qw(no_plan);
+
+our ( $debugf, $BZIP );
 
 do 't/lib.pl';
 
-my $debugf = 0;
-
-my $PREFIX='t/01-tmp';
+my $PREFIX = catfile( qw(t 01-tmp) );
 
 #display_file( 'words1' );
 
@@ -16,7 +16,7 @@ foreach my $insuffix ( qw( ref bz2 ) ) {
   foreach my $sampleno ( 1..3 ) {
     my $opts = $insuffix eq 'ref' ? "-$sampleno" : $sampleno < 3 ? "-d" : "-ds";
 
-    system( "./bzip2 $opts  < sample$sampleno.$insuffix > $PREFIX-sample$sampleno-tst.$outsuffix" );
+    system( "$::BZIP $opts  < sample$sampleno.$insuffix > $PREFIX-sample$sampleno-tst.$outsuffix" );
     ok ( compare_binary_files( "sample$sampleno.$outsuffix", "$PREFIX-sample$sampleno-tst.$outsuffix" ),
 	 ($insuffix eq 'ref' ? 'compress' : 'uncompress'). " sample$sampleno.$insuffix successful" );
   }

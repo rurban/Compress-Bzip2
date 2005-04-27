@@ -50,3 +50,12 @@ in a lot of places.
      aTHX_ to the call to PerlIO_binmode seems like a perl version
      thing.
    - added tests for internal_bzlib, copied from bzip2 1.0.2.
+
+2.05 Wed Apr 27 2005
+   - cleaned up the pod so it's more presentable online.
+   - win32 builds - the eye of the needle.  Sisyphus has been doing most of
+     the work.
+   - cater to win32 nmake - :: ok but $^ not
+   - cater to win32 dmake - :: bad but $^ ok
+   - cater to win32 - use File::Spec catfile and rel2abs all over the place
+   
