@@ -59,3 +59,5 @@ in a lot of places.
    - cater to win32 dmake - :: bad but $^ ok
    - cater to win32 - use File::Spec catfile and rel2abs all over the place
    
+2.06 Fri Apr 29 2005
+   - build for bzip2.exe fine tuning for win32 nmake

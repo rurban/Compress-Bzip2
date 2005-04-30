@@ -1,7 +1,8 @@
-# File	  : Bzip2.pm
-# Author  : Rob Janes
-# Created : 14 April 2005
-# Version : 2.05
+# File	   : Bzip2.pm
+# Author   : Rob Janes
+# Created  : 14 April 2005
+# Modified : 29 April 2005
+# Version  : 2.06
 #
 #     Copyright (c) 2005 Rob Janes. All rights reserved.
 #     This program is free software; you can redistribute it and/or
@@ -126,7 +127,7 @@ $EXPORT_TAGS{'all'} = [ @EXPORT_OK ];
 
 our @EXPORT = ( @{ $EXPORT_TAGS{'utilities'} }, @{ $EXPORT_TAGS{'constants'} } );
 
-our $VERSION = "2.05";
+our $VERSION = "2.06";
 
 our $bzerrno = "";
 our $gzerrno;
@@ -471,7 +472,7 @@ sub _bzerror2gzerror {
   return $gz_error_num;
 }
 
-sub gzopen($$) {
+sub gzopen ( $$ ) {
   goto &bzopen;
 }
 
@@ -487,8 +488,8 @@ sub gzwrite ( $$ ) {
   goto &bzwrite;
 }
 
-sub gzflush ( $ ) {
-  my ( $flush ) = @_;
+sub gzflush ( $;$ ) {
+  my ( $obj, $flush ) = @_;
   return Z_OK if $flush == Z_NO_FLUSH;
   goto &bzflush;
 }
@@ -621,7 +622,6 @@ sub uncompress ( $ ) {
 
 __END__
 
-
 =pod
 
 =head1 NAME
@@ -681,6 +681,339 @@ All string parameters can either be a scalar or a scalar reference.
 The module can be split into two general areas of functionality, namely
 in-memory compression/decompression and read/write access to I<bzip2>
 files. Each of these areas will be discussed separately below.
+
+=head1 FILE READ/WRITE INTERFACE
+
+A number of functions are supplied in I<bzlib> for reading and writing
+I<bzip2> files. Unfortunately, most of them are not suitable.  So, this
+module provides another interface, built over top of the low level bzlib
+methods.
+
+=over 5
+
+=head2 B<$bz = bzopen(filename or filehandle, mode)>
+
+This function returns an object which is used to access the other
+I<bzip2> methods.
+
+The B<mode> parameter is used to specify both whether the file is
+opened for reading or writing, with "r" or "w" respectively.
+
+If a reference to an open filehandle is passed in place of the
+filename, it better be positioned to the start of a
+compression/decompression sequence.
+
+=head2 B<$bz = Compress::Bzip2-E<gt>new( [PARAMS] )>
+
+Create a Compress::Bzip2 object.  Optionally, provide
+compression/decompression parameters as a keyword => setting list.
+See I<bzsetparams()> for a description of the parameters.
+
+=head2 B<$bz-E<gt>bzopen(filename or filehandle, mode)>
+
+This is bzopen, but it uses an object previously created by the new
+method.  Other than that, it is identical to the above bzopen.
+
+=head2 B<$bytesread = $bz-E<gt>bzread($buffer [, $size]) ;>
+
+Reads B<$size> bytes from the compressed file into B<$buffer>. If
+B<$size> is not specified, it will default to 4096. If the scalar
+B<$buffer> is not large enough, it will be extended automatically.
+
+Returns the number of bytes actually read. On EOF it returns 0 and in
+the case of an error, -1.
+
+=head2 B<$bytesread = $bz-E<gt>bzreadline($line) ;>
+
+Reads the next line from the compressed file into B<$line>. 
+
+Returns the number of bytes actually read. On EOF it returns 0 and in
+the case of an error, -1.
+
+It IS legal to intermix calls to B<bzread> and B<bzreadline>.
+
+At this time B<bzreadline> ignores the variable C<$/>
+(C<$INPUT_RECORD_SEPARATOR> or C<$RS> when C<English> is in use). The
+end of a line is denoted by the C character C<'\n'>.
+
+=head2 B<$byteswritten = $bz-E<gt>bzwrite($buffer) ;>
+
+Writes the contents of B<$buffer> to the compressed file. Returns the
+number of bytes actually written, or 0 on error.
+
+=head2 B<$status = $bz-E<gt>bzflush($flush) ;>
+
+Flushes all pending output to the compressed file.
+Works identically to the I<zlib> function it interfaces to. Note that
+the use of B<bzflush> can degrade compression.
+
+Returns C<BZ_OK> if B<$flush> is C<BZ_FINISH> and all output could be
+flushed. Otherwise the bzlib error code is returned.
+
+Refer to the I<bzlib> documentation for the valid values of B<$flush>.
+
+=head2 B<$status = $bz-E<gt>bzeof() ;>
+
+Returns 1 if the end of file has been detected while reading the input
+file, otherwise returns 0.
+
+=head2 B<$bz-E<gt>bzclose>
+
+Closes the compressed file. Any pending data is flushed to the file
+before it is closed.
+
+=head2 B<$bz-E<gt>bzsetparams( [PARAMS] );>
+
+Change settings for the deflate stream C<$bz>.
+
+The list of the valid options is shown below. Options not specified
+will remain unchanged.
+
+=over 5
+
+=item B<-verbosity>
+
+Defines the verbosity level. Valid values are 0 through 4,
+
+The default is C<-verbosity =E<gt> 0>.
+
+=item B<-blockSize100k>
+
+For bzip object opened for stream deflation or write.
+
+Defines the buffering factor of compression method.  The algorithm
+buffers all data until the buffer is full, then it flushes all the
+data out.  Use -blockSize100k to specify the size of the buffer.
+
+Valid settings are 1 through 9, representing a blocking in multiples
+of 100k.
+
+Note that each such block has an overhead of leading and trailing
+synchronization bytes.  bzip2 recovery uses this information to
+pull useable data out of a corrupted file.
+
+A streaming application would probably want to set the blocking low.
+
+=item B<-workFactor>
+
+For bzip object opened for stream deflation or write.
+
+The workFactor setting tells the deflation algorithm how much work
+to invest to compensate for repetitive data.
+
+workFactor may be a number from 0 to 250 inclusive.  The default setting
+is 30.
+
+See the bzip documentation for more information.
+
+=item B<-small>
+
+For bzip object opened for stream inflation or read.
+
+B<small> may be 0 or 1.  Set C<small> to one to use a slower, less
+memory intensive algorithm.
+
+=back
+
+=head2 B<$bz-E<gt>bzerror>
+
+Returns the I<bzlib> error message or number for the last operation
+associated with B<$bz>. The return value will be the I<bzlib> error
+number when used in a numeric context and the I<bzlib> error message
+when used in a string context. The I<bzlib> error number constants,
+shown below, are available for use.
+
+  BZ_CONFIG_ERROR
+  BZ_DATA_ERROR
+  BZ_DATA_ERROR_MAGIC
+  BZ_FINISH
+  BZ_FINISH_OK
+  BZ_FLUSH
+  BZ_FLUSH_OK
+  BZ_IO_ERROR
+  BZ_MAX_UNUSED
+  BZ_MEM_ERROR
+  BZ_OK
+  BZ_OUTBUFF_FULL
+  BZ_PARAM_ERROR
+  BZ_RUN
+  BZ_RUN_OK
+  BZ_SEQUENCE_ERROR
+  BZ_STREAM_END
+  BZ_UNEXPECTED_EOF
+
+=head2 B<$bzerrno>
+
+The B<$bzerrno> scalar holds the error code associated with the most
+recent I<bzip2> routine. Note that unlike B<bzerror()>, the error is
+I<not> associated with a particular file.
+
+As with B<bzerror()> it returns an error number in numeric context and
+an error message in string context. Unlike B<bzerror()> though, the
+error message will correspond to the I<bzlib> message when the error is
+associated with I<bzlib> itself, or the UNIX error message when it is
+not (i.e. I<bzlib> returned C<Z_ERRORNO>).
+
+As there is an overlap between the error numbers used by I<bzlib> and
+UNIX, B<$bzerrno> should only be used to check for the presence of
+I<an> error in numeric context. Use B<bzerror()> to check for specific
+I<bzlib> errors. The I<bzcat> example below shows how the variable can
+be used safely.
+
+=back
+
+=head1 GZIP COMPATIBILITY INTERFACE
+
+Except for the exact state and error numbers, this package presents an
+interface very much like that given by the Compress::Zlib package.
+Mostly, if you take the method name, state or error number from
+Compress::Zlib and replace the "g" with a "b", your code should work.
+
+To make the interoperability even easier, all the Compress::Zlib method
+names have been used as aliases or cover functions for the bzip2 methods.
+
+Therefore, most code that uses Compress::Zlib should be able to use
+this package, with a one line change.
+
+Simply change
+
+   $gz = Compress::Zlib::gzopen( "filename", "w" );
+
+to
+
+   $gz = Compress::Bzip2::gzopen( "filename", "w" );
+
+Some of the Compress::Zlib aliases don't return anything useful, like
+crc32 or adler32, cause bzip2 doesn't do that sort of thing.
+
+=over 5
+
+=head2 B< $gz = gzopen( $filename, $mode ) >
+
+Alias for bzopen.
+
+=head2 B< $gz-E<gt>gzread( $buffer, [ $length ] ) >
+
+Alias for bzread.
+
+=head2 B< $gz-E<gt>gzreadline( $buffer ) >
+
+Alias for bzreadline.
+
+=head2 B< $gz-E<gt>gzwrite( $buffer ) >
+
+Alias for bzwrite.
+
+=head2 B< $gz-E<gt>gzflush( [$flushtype] ) >
+
+Alias for bzflush, with return code translation.
+
+=head2 B< $gz-E<gt>gzclose( ) >
+
+Alias for bzclose.
+
+=head2 B< $gz-E<gt>gzeof( ) >
+
+Alias for bzeof.
+
+=head2 B< $gz-E<gt>gzerror( ) >
+
+Alias for bzerror.
+
+=head2 B< $gz-E<gt>gzsetparams( $level, $strategy ) >
+
+This is a no-op.
+
+=head2 B< $d = deflateInit( [OPTS] ) >
+
+Alias for bzdeflateInit, with return code translation.
+
+All OPTS are ignored.
+
+=head2 B< $d-E<gt>deflate( $buffer ) >
+
+Alias for bzdeflate, with return code translation.
+
+=head2 B< $d-E<gt>deflateParams( [OPTS] ) >
+
+This is a no-op.
+
+=head2 B< $d-E<gt>flush( [$flushtype] ) >
+
+Cover function for bzflush or bzclose, depending on $flushtype.
+
+See the Compress::Zlib documentation for more information.
+
+=head2 B< $d-E<gt>dict_adler( ) >
+
+This is a no-op.
+
+=head2 B< $d-E<gt>msg( ) >
+
+This is a no-op.
+
+=head2 B< $d = inflateInit( [OPTS] ) >
+
+Alias for bzinflateInit, with return code translation.
+
+All OPTS are ignored.
+
+=head2 B< $d-E<gt>inflate( ) >
+
+Alias for bzinflate, with return code translation.
+
+=head2 B< $d-E<gt>inflateSync( ) >
+
+This is a no-op.
+
+=head2 B< $d-E<gt>adler32( $crc ) >
+
+This is a no-op.
+
+=head2 B< $d-E<gt>crc32( $crc ) >
+
+This is a no-op.
+
+=head2 B< $buffer = memGzip( $buffer ) >
+
+Alias for memBzip.
+
+=head2 B< $buffer = memGunzip( $buffer ) >
+
+Alias for memBunzip.
+
+=back
+
+=head1 IN-MEMORY COMPRESS/UNCOMPRESS
+
+Two high-level functions are provided by I<bzlib> to perform in-memory
+compression. They are B<memBzip> and B<memBunzip>. Two Perl subs are
+provided which provide similar functionality.
+
+=over 5
+
+=head2 B<$compressed = memBzip($buffer);>
+
+Compresses B<$source>. If successful it returns the compressed
+data. Otherwise it returns I<undef>.
+
+The buffer parameter can either be a scalar or a scalar reference.
+
+Essentially, an in-memory bzip file is created. It creates a minimal
+bzip header.
+
+=head2 B<$uncompressed = memBunzip($buffer);>
+
+Uncompresses B<$source>. If successful it returns the uncompressed
+data. Otherwise it returns I<undef>.
+
+The source buffer can either be a scalar or a scalar reference.
+
+The buffer parameter can either be a scalar or a scalar reference. The
+contents of the buffer parameter are destroyed after calling this
+function.
+
+=back
 
 =head1 STREAM DEFLATE 
 
@@ -921,217 +1254,6 @@ Here is an example of using B<bzinflate>.
     
     die "inflation failed\n"
         unless $status == BZ_STREAM_END ;
-
-=head1 IN-MEMORY COMPRESS/UNCOMPRESS
-
-Two high-level functions are provided by I<bzlib> to perform in-memory
-compression. They are B<memBzip> and B<memBunzip>. Two Perl subs are
-provided which provide similar functionality.
-
-=over 5
-
-=head2 B<$compressed = memBzip($buffer);>
-
-Compresses B<$source>. If successful it returns the compressed
-data. Otherwise it returns I<undef>.
-
-The buffer parameter can either be a scalar or a scalar reference.
-
-Essentially, an in-memory bzip file is created. It creates a minimal
-bzip header.
-
-=head2 B<$uncompressed = memBunzip($buffer);>
-
-Uncompresses B<$source>. If successful it returns the uncompressed
-data. Otherwise it returns I<undef>.
-
-The source buffer can either be a scalar or a scalar reference.
-
-The buffer parameter can either be a scalar or a scalar reference. The
-contents of the buffer parameter are destroyed after calling this
-function.
-
-=back
-
-=head1 FILE READ/WRITE INTERFACE
-
-A number of functions are supplied in I<bzlib> for reading and writing
-I<gzip> files. Unfortunately, most of them are not suitable.  So, this
-module provides another interface, built over top of the low level bzlib
-methods.
-
-=over 5
-
-=head2 B<$bz = bzopen(filename or filehandle, mode)>
-
-This function returns an object which is used to access the other
-I<bzip2> methods.
-
-The B<mode> parameter is used to specify both whether the file is
-opened for reading or writing, with "r" or "w" respectively.
-
-If a reference to an open filehandle is passed in place of the
-filename, it better be positioned to the start of a
-compression/decompression sequence.
-
-=head2 B<$bz = Compress::Bzip2-E<gt>new( [PARAMS] )>
-
-Create a Compress::Bzip2 object.  Optionally, provide
-compression/decompression parameters as a keyword => setting list.
-See I<bzsetparams()> for a description of the parameters.
-
-=head2 B<$bz-E<gt>bzopen(filename or filehandle, mode)>
-
-This is bzopen, but it uses an object previously created by the new
-method.  Other than that, it is identical to the above bzopen.
-
-=head2 B<$bytesread = $bz-E<gt>bzread($buffer [, $size]) ;>
-
-Reads B<$size> bytes from the compressed file into B<$buffer>. If
-B<$size> is not specified, it will default to 4096. If the scalar
-B<$buffer> is not large enough, it will be extended automatically.
-
-Returns the number of bytes actually read. On EOF it returns 0 and in
-the case of an error, -1.
-
-=head2 B<$bytesread = $bz-E<gt>bzreadline($line) ;>
-
-Reads the next line from the compressed file into B<$line>. 
-
-Returns the number of bytes actually read. On EOF it returns 0 and in
-the case of an error, -1.
-
-It IS legal to intermix calls to B<bzread> and B<bzreadline>.
-
-At this time B<bzreadline> ignores the variable C<$/>
-(C<$INPUT_RECORD_SEPARATOR> or C<$RS> when C<English> is in use). The
-end of a line is denoted by the C character C<'\n'>.
-
-=head2 B<$byteswritten = $bz-E<gt>bzwrite($buffer) ;>
-
-Writes the contents of B<$buffer> to the compressed file. Returns the
-number of bytes actually written, or 0 on error.
-
-=head2 B<$status = $bz-E<gt>bzflush($flush) ;>
-
-Flushes all pending output to the compressed file.
-Works identically to the I<zlib> function it interfaces to. Note that
-the use of B<bzflush> can degrade compression.
-
-Returns C<BZ_OK> if B<$flush> is C<BZ_FINISH> and all output could be
-flushed. Otherwise the bzlib error code is returned.
-
-Refer to the I<bzlib> documentation for the valid values of B<$flush>.
-
-=head2 B<$status = $bz-E<gt>bzeof() ;>
-
-Returns 1 if the end of file has been detected while reading the input
-file, otherwise returns 0.
-
-=head2 B<$bz-E<gt>bzclose>
-
-Closes the compressed file. Any pending data is flushed to the file
-before it is closed.
-
-=head2 B<$bz-E<gt>bzsetparams( [PARAMS] );>
-
-Change settings for the deflate stream C<$bz>.
-
-The list of the valid options is shown below. Options not specified
-will remain unchanged.
-
-=over 5
-
-=item B<-verbosity>
-
-Defines the verbosity level. Valid values are 0 through 4,
-
-The default is C<-verbosity =E<gt> 0>.
-
-=item B<-blockSize100k>
-
-For bzip object opened for stream deflation or write.
-
-Defines the buffering factor of compression method.  The algorithm
-buffers all data until the buffer is full, then it flushes all the
-data out.  Use -blockSize100k to specify the size of the buffer.
-
-Valid settings are 1 through 9, representing a blocking in multiples
-of 100k.
-
-Note that each such block has an overhead of leading and trailing
-synchronization bytes.  bzip2 recovery uses this information to
-pull useable data out of a corrupted file.
-
-A streaming application would probably want to set the blocking low.
-
-=item B<-workFactor>
-
-For bzip object opened for stream deflation or write.
-
-The workFactor setting tells the deflation algorithm how much work
-to invest to compensate for repetitive data.
-
-workFactor may be a number from 0 to 250 inclusive.  The default setting
-is 30.
-
-See the bzip documentation for more information.
-
-=item B<-small>
-
-For bzip object opened for stream inflation or read.
-
-B<small> may be 0 or 1.  Set C<small> to one to use a slower, less
-memory intensive algorithm.
-
-=back
-
-=head2 B<$bz-E<gt>bzerror>
-
-Returns the I<bzlib> error message or number for the last operation
-associated with B<$bz>. The return value will be the I<bzlib> error
-number when used in a numeric context and the I<bzlib> error message
-when used in a string context. The I<bzlib> error number constants,
-shown below, are available for use.
-
-  BZ_CONFIG_ERROR
-  BZ_DATA_ERROR
-  BZ_DATA_ERROR_MAGIC
-  BZ_FINISH
-  BZ_FINISH_OK
-  BZ_FLUSH
-  BZ_FLUSH_OK
-  BZ_IO_ERROR
-  BZ_MAX_UNUSED
-  BZ_MEM_ERROR
-  BZ_OK
-  BZ_OUTBUFF_FULL
-  BZ_PARAM_ERROR
-  BZ_RUN
-  BZ_RUN_OK
-  BZ_SEQUENCE_ERROR
-  BZ_STREAM_END
-  BZ_UNEXPECTED_EOF
-
-=head2 B<$bzerrno>
-
-The B<$bzerrno> scalar holds the error code associated with the most
-recent I<gzip> routine. Note that unlike B<bzerror()>, the error is
-I<not> associated with a particular file.
-
-As with B<bzerror()> it returns an error number in numeric context and
-an error message in string context. Unlike B<bzerror()> though, the
-error message will correspond to the I<bzlib> message when the error is
-associated with I<bzlib> itself, or the UNIX error message when it is
-not (i.e. I<bzlib> returned C<Z_ERRORNO>).
-
-As there is an overlap between the error numbers used by I<bzlib> and
-UNIX, B<$bzerrno> should only be used to check for the presence of
-I<an> error in numeric context. Use B<bzerror()> to check for specific
-I<bzlib> errors. The I<bzcat> example below shows how the variable can
-be used safely.
-
-=back
 
 =head1 EXAMPLES
 

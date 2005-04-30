@@ -1,9 +1,9 @@
 
 Compress::Bzip2
 
-Version 2.05
+Version 2.06
 
-26 April 2005
+28 April 2005
 
 The subdirectory bzlib-src contains most of the files from the 1.0.2
 distribution of bzip2.  See the README in there for more information.
@@ -31,8 +31,8 @@ Streaming decompression on the other hand, gives a steady torrent of bytes.
 What is Perl-Bzip2 ?
 ====================
 Perl-Bzip2 provides Bzip2 bindings for Perl5. I.e. you can access the
-Bzip2 library from your Perl scripts there by compressing ordinary
-Perl strings.
+Bzip2 library from your Perl scripts thereby compressing ordinary
+Perl files, streams, whatever.
 
 It's my intent to make this package like the Compress::Zlib package, so
 that code that uses one can fairly easily use the other.  The perlxs stuff
@@ -42,19 +42,17 @@ Compress::Zlib counterparts, except that the "g" is changed to a "b".
 Most code that uses Compress::Zlib should be able to use this package.
 Simply change
 
-   $gz = Compress::Zlib->gzopen( "filename", "w" );
+   $gz = Compress::Zlib::gzopen( "filename", "w" );
 
 to
 
-   $gz = Compress::Bzip2->gzopen( "filename", "w" );
+   $gz = Compress::Bzip2::gzopen( "filename", "w" );
 
 I made aliases of all the Compress::Zlib functions.  Some of them don't
 return anything useful, like crc32 or adler32, cause bzip2 doesn't
 do that sort of thing.  Take a look at t/070-gzcomp.t and t/071-gzuncomp.t.
 
-Bug fixes and other feedback are welcome, send them to me, not
-azemgi, as this code is nothing like his code.  This is a complete
-rewrite.
+Bug fixes and other feedback are welcome.
 
 Copyright
 =========

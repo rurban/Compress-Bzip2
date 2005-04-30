@@ -27,9 +27,10 @@ WriteMakefile(
 package MY;
 
 sub top_targets {
-  my $make = $::Config{make};
+  my $make = $Config::Config{make};
+  my $cc = $Config::Config{cc};
   my $objects = join( ' ', map { $_.'$(OBJ_EXT)' } qw(blocksort huffman crctable randtable compress decompress bzlib) );
-  my $ar_args = $^O =~ /win32/i ? '-out:$@' : '$(AR_STATIC_ARGS) $@';
+  my $ar_args = $cc eq 'cl' && $^O =~ /win32/i ? '-out:$@' : '$(AR_STATIC_ARGS) $@';
 
  	'
 all ' . ( $^O =~ /win32/i && $make eq 'dmake' ? ':' : '::' ) . ' static
@@ -41,6 +42,10 @@ static ' . ( $^O =~ /win32/i && $make eq 'dmake' ? ':' : '::' ) . ' libbz2$(LIB_
 libbz2$(LIB_EXT): ' . $objects . '
 	$(AR) ' . $ar_args . ' ' . ( $^O =~ /win32/i && $make eq 'nmake' ? $objects : '$^' ) . ' && $(RANLIB) $@
 
-bzip2$(EXE_EXT): libbz2$(LIB_EXT) bzip2$(OBJ_EXT)
+' . ( $^O =~ /win32/i && $make eq 'nmake' ?
+      'bzip2$(EXE_EXT): bzip2.c libbz2$(LIB_EXT)
+	$(CCCMD) $(CCCDLFLAGS) "-I$(PERL_INC)" $(PASTHRU_DEFINE) $(DEFINE) -obzip2$(OBJ_EXT) bzip2.c $(LDFLAGS) libbz2$(LIB_EXT)' :
+      'bzip2$(EXE_EXT): bzip2$(OBJ_EXT) libbz2$(LIB_EXT)' ) . '
 ';
+
 }

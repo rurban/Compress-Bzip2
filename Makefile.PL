@@ -165,8 +165,9 @@ sub ParseCONFIG {
       if ( -x 'show_bzversion' && -s 'show_bzversion' ) {
 	my $version = `./show_bzversion`;
 	if ( $version ) {
+	  chomp $version;
 	  $BUILD_BZLIB = 0;
-	  print "found bzip2 $version\n";
+	  print "found bzip2 $version ".($BZLIB_LIB ? "in $BZLIB_LIB" : 'installed')."\n";
 	}
 	else {
 	  $BUILD_BZLIB = 1;
