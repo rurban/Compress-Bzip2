@@ -1,12 +1,14 @@
 
 Compress::Bzip2
 
-Version 2.06
+Version 2.07
 
-28 April 2005
+1 May 2005
 
-The subdirectory bzlib-src contains most of the files from the 1.0.2
-distribution of bzip2.  See the README in there for more information.
+The subdirectory bzlib-src contains almost all of the files from the
+1.0.2 distribution of bzip2.  What's missing is that I only included
+the html flavour of the documentation.  See the README in there for
+more information.
 
 DESCRIPTION
 ===========
@@ -80,3 +82,7 @@ Gawdi Azem <azemgi@rupert.informatik.uni-stuttgart.de>
 
 Sisyphus, helped out with win32 compatibility
 s i s y p h u s 1   a t   o p t u s n e t . c o m . a u
+
+Marco "Kiko" Carnut, author of Compress::Bzip2 1.03
+k i k o   a t   t e m p e s t . c o m . b r
+

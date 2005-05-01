@@ -87,7 +87,10 @@ SV * sv ;
 char * string;
 #endif
 {
-  if (SvROK(sv)) {
+  SV *last_sv = NULL;
+
+  while(SvROK(sv) && sv != last_sv) {
+    last_sv = sv;
     sv = SvRV(sv) ;
     switch(SvTYPE(sv)) {
     case SVt_PVAV:
@@ -95,13 +98,14 @@ char * string;
     case SVt_PVCV:
       croak("%s: buffer parameter is not a SCALAR reference", string);
     }
-    if (SvROK(sv))
-      croak("%s: buffer parameter is a reference to a reference", string) ;
+
+    /*    if (SvROK(sv))
+	  croak("%s: buffer parameter is a reference to a reference", string) ;*/
   }
 
-  if (!SvOK(sv)) { 
-    sv = newSVpv("", 0);
-  }	
+  if (!SvOK(sv)) croak("%s: buffer parameter is not a SCALAR reference", string);
+     /*sv = newSVpv("", 0);*/
+
   return sv ;
 }
 
@@ -123,6 +127,30 @@ static char *bzerrorstrings[] = {
       ,"???"   /* for future */
       ,"???"   /* for future */
 };
+
+
+/* memory allocator */
+static void*
+#ifdef CAN_PROTOTYPE
+bzmemalloc(void* opaque, int n, int m)
+#else
+bzalloc(opaque,n,m) void* opaque; int n; int m;
+#endif
+{
+  New(0,opaque,n*m,char);
+  return opaque;
+}
+
+/* memory deallocator */
+static void
+#ifdef CAN_PROTOTYPE
+bzmemfree(void* opaque, void* p)
+#else
+bzfree(opaque, p) void* opaque; void* p;
+#endif
+{
+  Safefree(p);
+}
 
 int
 #ifdef CAN_PROTOTYPE
@@ -355,8 +383,8 @@ bzFile* bzfile_new( verbosity, small, blockSize100k, workFactor )
   obj->total_in      = 0;
   obj->total_out     = 0;
 
-  obj->strm.bzalloc  = NULL;
-  obj->strm.bzfree   = NULL;
+  obj->strm.bzalloc  = bzmemalloc;
+  obj->strm.bzfree   = bzmemfree;
   obj->strm.opaque   = NULL;
 
   obj->allowUncompressedRead = False;
@@ -401,6 +429,9 @@ int bzfile_setparams( obj, param, setting ) bzFile* obj; char* param; int settin
       savsetting = -1;
     }
   }
+  else if ( strEQ( param, "buffer" ) ) {
+    savsetting = BZ_MAX_UNUSED;
+  }
   else if ( strEQ( param, "small" ) ) {
     savsetting = obj->small;
 
@@ -411,7 +442,7 @@ int bzfile_setparams( obj, param, setting ) bzFile* obj; char* param; int settin
       savsetting = -1;
     }
   }
-  else if ( strEQ( param, "blockSize100k" ) ) {
+  else if ( strEQ( param, "blockSize100k" ) || strEQ( param, "level" ) ) {
     savsetting = obj->blockSize100k;
 
     if ( setting >= 1 && setting <= 9 )
@@ -1707,8 +1738,8 @@ MY_bz_seterror(error_num, error_str)
     RETVAL
 
 SV *
-memBzip(string, level = 1)
-  char* string
+memBzip(sv, level = 1)
+  SV* sv;
   int level
 
   PROTOTYPE: $;$
@@ -1717,7 +1748,6 @@ memBzip(string, level = 1)
     compress = 1
 
   PREINIT:
-	SV *		sv;
 	STRLEN		len;
 	unsigned char *	in;
 	unsigned char *	out;
@@ -1729,25 +1759,31 @@ memBzip(string, level = 1)
 
   CODE:
   {
-    sv = deRef(ST(0), "memBzip");
-    in = (unsigned char *) SvPV(sv, len);
-    if (items == 2 && SvOK(ST(1)))
-      level = SvIV(ST(1));
+    if ( !SvOK(sv) )
+      croak(ix==1 ? "compress: buffer is undef" : "memBzip: buffer is undef");;
+
+    sv = deRef(sv, ix==1 ? "compress" : "memBzip");
+
+    in = (unsigned char*) SvPV(sv, len);
     in_len = len;
-    out_len = in_len + in_len / 64 + 16 + 3;
+
+    /* use an extra 1% + 600 bytes (see libbz2 documentation) */
+    out_len = in_len + ( in_len + 99 ) / 100 + 600;
     RETVAL = newSV(5+out_len);
     SvPOK_only(RETVAL);
 
-    out = (unsigned char *) SvPVX(RETVAL);
+    out = (unsigned char*)SvPVX(RETVAL);
     new_len = out_len;
 
     out[0] = 0xf0;
-    err = BZ2_bzBuffToBuffCompress((char*) out+5, &new_len, (char*) in, in_len, 6, 0, 240);
+    err = BZ2_bzBuffToBuffCompress((char*)out+5,&new_len,(char*)in,in_len,6,0,240);
 
     if (err != BZ_OK || new_len > out_len) {
       SvREFCNT_dec(RETVAL);
+      BZ_SETERR(NULL, err, ix==1 ? "compress" : "memBzip");
       XSRETURN_UNDEF;
     }
+
     SvCUR_set(RETVAL,5+new_len);
     out[1] = (in_len >> 24) & 0xff;
     out[2] = (in_len >> 16) & 0xff;
@@ -1759,8 +1795,8 @@ memBzip(string, level = 1)
     RETVAL
 
 SV *
-memBunzip(string)
-  char* string
+memBunzip(sv)
+  SV* sv
 
   PROTOTYPE: $
 
@@ -1768,7 +1804,6 @@ memBunzip(string)
     decompress = 1
 
   PREINIT:
-    SV *		sv;
     STRLEN		len;
     unsigned char *	in;
     unsigned char *	out;
@@ -1779,19 +1814,26 @@ memBunzip(string)
 
   CODE:
   {
-    sv = deRef(ST(0), "memBunzip");
-    in = (unsigned char *) SvPV(sv, len);
-    if (len < 5 + 3 || in[0] < 0xf0 || in[0] > 0xf1)
+    if ( !SvOK(sv) )
+      croak(ix==1 ? "decompress: buffer is undef" : "memBunzip: buffer is undef");;
+
+    sv = deRef(sv, ix==1 ? "decompress" : "memBunzip");
+
+    in = (unsigned char*)SvPV(sv, len);
+    if (len < 5 + 3 || in[0] < 0xf0 || in[0] > 0xf1) {
+      warn("invalid buffer (too short %d or bad marker %d)",len,in[0]);
       XSRETURN_UNDEF;
+    }
     in_len = len - 5;
     out_len = (in[1] << 24) | (in[2] << 16) | (in[3] << 8) | in[4];
     RETVAL = newSV(out_len > 0 ? out_len : 1);
     SvPOK_only(RETVAL);
-    out = (unsigned char *) SvPVX(RETVAL);
+    out = (unsigned char*)SvPVX(RETVAL);
     new_len = out_len;
-    err = BZ2_bzBuffToBuffDecompress((char*) out, &new_len, (char*) in+5, in_len, 0, 0);
+    err = BZ2_bzBuffToBuffDecompress((char*)out,&new_len,(char*)in+5,in_len,0,0);
     if (err != BZ_OK || new_len != out_len) {
       SvREFCNT_dec(RETVAL);
+      BZ_SETERR(NULL, err, ix==1 ? "decompress" : "memBunzip");
       XSRETURN_UNDEF;
     }
     SvCUR_set(RETVAL, new_len);
@@ -2223,9 +2265,12 @@ MY_bzwrite(obj, buf, limit)
     RETVAL
 
 void
-MY_bzdeflateInit(...)
+bzdeflateInit(...)
 
   PROTOTYPE: @
+
+  ALIAS:
+    compress_init = 1
 
   INIT:
     bzFile* obj = NULL;
@@ -2237,6 +2282,8 @@ MY_bzdeflateInit(...)
   PPCODE:
   {
     int i;
+
+    if (items % 2) croak("Compress::Bzip2::%s has odd parameter count", ix==0 ? "bzdeflateInit" : "compress_init");
 
     obj = bzfile_new( 0, 0, 1, 0 );
     bzfile_openstream( "w", obj );
@@ -2368,9 +2415,12 @@ MY_bzdeflate(obj, buffer)
 
 
 void
-MY_bzinflateInit(...)
+bzinflateInit(...)
 
   PROTOTYPE: @
+
+  ALIAS:
+    decompress_init = 1
 
   INIT:
     bzFile* obj = NULL;
@@ -2382,6 +2432,8 @@ MY_bzinflateInit(...)
   PPCODE:
   {
     int i;
+
+    if (items % 2) croak("Compress::Bzip2::%s has odd parameter count", ix==0 ? "bzinflateInit" : "decompress_init");
 
     if ( obj == NULL ) {
       obj = bzfile_new( 0, 0, 1, 0 );
@@ -2469,3 +2521,38 @@ MY_bzinflate(obj, buffer)
       XPUSHs(sv_2mortal(newSViv(global_bzip_errno)));
   }
 
+int
+MY_is_write(obj)
+  Compress::Bzip2 obj
+
+  PROTOTYPE: $
+
+  CODE:
+    RETVAL = obj->open_status == OPEN_STATUS_WRITE || obj->open_status == OPEN_STATUS_WRITESTREAM ? 1 : 0;
+
+  OUTPUT:
+    RETVAL 
+
+int
+MY_is_read(obj)
+  Compress::Bzip2 obj
+
+  PROTOTYPE: $
+
+  CODE:
+    RETVAL = obj->open_status == OPEN_STATUS_READ || obj->open_status == OPEN_STATUS_READSTREAM ? 1 : 0;
+
+  OUTPUT:
+    RETVAL 
+
+int
+MY_is_stream(obj)
+  Compress::Bzip2 obj
+
+  PROTOTYPE: $
+
+  CODE:
+    RETVAL = obj->open_status == OPEN_STATUS_WRITESTREAM || obj->open_status == OPEN_STATUS_READSTREAM ? 1 : 0;
+
+  OUTPUT:
+    RETVAL 

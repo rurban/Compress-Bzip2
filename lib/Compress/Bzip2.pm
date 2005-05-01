@@ -1,8 +1,8 @@
 # File	   : Bzip2.pm
 # Author   : Rob Janes
 # Created  : 14 April 2005
-# Modified : 29 April 2005
-# Version  : 2.06
+# Modified : 1 May 2005
+# Version  : 2.07
 #
 #     Copyright (c) 2005 Rob Janes. All rights reserved.
 #     This program is free software; you can redistribute it and/or
@@ -68,6 +68,8 @@ our %EXPORT_TAGS =
       'bzip1' => [ qw(
 		      &compress
 		      &decompress
+		      &compress_init
+		      &decompress_init
 		      ) ],
 
       'gzip' => [ qw(
@@ -127,7 +129,7 @@ $EXPORT_TAGS{'all'} = [ @EXPORT_OK ];
 
 our @EXPORT = ( @{ $EXPORT_TAGS{'utilities'} }, @{ $EXPORT_TAGS{'constants'} } );
 
-our $VERSION = "2.06";
+our $VERSION = "2.07";
 
 our $bzerrno = "";
 our $gzerrno;
@@ -445,6 +447,55 @@ sub _process_files ( @ ) {
   }
 }
   
+##############################################################################
+##############################################################################
+## compatibility with Compress::Bzip2 1.03
+
+sub add ( $$ ) {
+  my ( $obj, $buffer ) = @_;
+
+  my @res = $obj->is_write ? $obj->bzdeflate( $buffer ) : $obj->bzinflate( $buffer );
+
+  return $res[0];
+}
+
+sub finish ( $;$ ) {
+  my ( $obj, $buffer ) = @_;
+  my ( @res, $out );
+
+  if ( defined($buffer) ) {
+    @res = $obj->is_write ? $obj->bzdeflate( $buffer ) : $obj->bzinflate( $buffer );
+    return undef if $res[1] != &BZ_OK;
+
+    $out = $res[0];
+  }
+  $out = '' if !defined($out);
+
+  @res = $obj->bzclose;
+  return undef if $res[1] != &BZ_OK;
+
+  return $out.$res[0];
+}
+
+sub input_size ( $ ) {
+  my ( $obj ) = @_;
+  return $obj->total_in;
+}
+
+sub output_size ( $ ) {
+  my ( $obj ) = @_;
+  return $obj->total_out;
+}
+
+sub version ( ) {
+  return bzlibversion();
+}
+
+sub error ( $ ) {
+  return $_[0]->bzerror;
+}
+
+##############################################################################
 ##############################################################################
 ## THE Compress::Zlib compatibility section
 
@@ -1428,6 +1479,23 @@ at your option, any later version of Perl 5 you may have available.
 
 The I<Compress::Bzip2> module was originally written by Gawdi Azem
 F<azemgi@rupert.informatik.uni-stuttgart.de>.
+
+The first I<Compress::Bzip2> module was written by Gawdi Azem
+F<azemgi@rupert.informatik.uni-stuttgart.de>.  It provided an
+interface to the in memory inflate and deflate routines.
+
+I<Compress::Bzip2> was subsequently passed on to Marco Carnut
+F<kiko@tempest.com.br> who shepharded it through to version 1.03, a
+set of changes which included upgrades to handle bzlib 1.0.2, and
+improvements to the in memory inflate and deflate routines.  The
+streaming interface and error information were added by David Robins
+F<dbrobins@davidrobins.net>.
+
+Version 2 of I<Compress::Bzip2> is due to Rob Janes, of
+rwjanes@primus.ca.  This release is intended to give an interface
+close to that of Compress::Zlib.  It's development forks from 1.00,
+not 1.03, so the streaming interface is not the same as that in 1.03,
+although apparently compatible as it passes the 1.03 test suite.
 
 =head1 MODIFICATION HISTORY
 

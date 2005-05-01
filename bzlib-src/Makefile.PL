@@ -42,10 +42,12 @@ static ' . ( $^O =~ /win32/i && $make eq 'dmake' ? ':' : '::' ) . ' libbz2$(LIB_
 libbz2$(LIB_EXT): ' . $objects . '
 	$(AR) ' . $ar_args . ' ' . ( $^O =~ /win32/i && $make eq 'nmake' ? $objects : '$^' ) . ' && $(RANLIB) $@
 
-' . ( $^O =~ /win32/i && $make eq 'nmake' ?
-      'bzip2$(EXE_EXT): bzip2.c libbz2$(LIB_EXT)
-	$(CCCMD) $(CCCDLFLAGS) "-I$(PERL_INC)" $(PASTHRU_DEFINE) $(DEFINE) -obzip2$(OBJ_EXT) bzip2.c $(LDFLAGS) libbz2$(LIB_EXT)' :
-      'bzip2$(EXE_EXT): bzip2$(OBJ_EXT) libbz2$(LIB_EXT)' ) . '
+' . 'bzip2$(EXE_EXT) ' . ( $^O =~ /win32/i && $make eq 'nmake' ? '::' : ':' ) . ' bzip2$(OBJ_EXT) libbz2$(LIB_EXT)' . '
 ';
+
+#   ( $^O =~ /win32/i && $make eq 'nmake' ?
+#       'bzip2$(EXE_EXT): bzip2.c libbz2$(LIB_EXT)
+# 	$(CCCMD) $(CCCDLFLAGS) "-I$(PERL_INC)" $(PASTHRU_DEFINE) $(DEFINE) -obzip2$(EXE_EXT) bzip2.c $(LDFLAGS) libbz2$(LIB_EXT)' :
+#       'bzip2$(EXE_EXT): bzip2$(OBJ_EXT) libbz2$(LIB_EXT)' )
 
 }

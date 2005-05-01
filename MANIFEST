@@ -36,6 +36,9 @@ t/051-deflate-flush.t
 t/060-inflate.t
 t/070-gzcomp.t
 t/071-gzuncomp.t
+t/080-version.t
+t/081-basic.t
+t/082-stream.t
 bzlib-src/README
 bzlib-src/CHANGES
 bzlib-src/LICENSE
