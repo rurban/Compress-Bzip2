@@ -70,6 +70,7 @@ our %EXPORT_TAGS =
 		      &decompress
 		      &compress_init
 		      &decompress_init
+		      &version
 		      ) ],
 
       'gzip' => [ qw(
@@ -129,7 +130,7 @@ $EXPORT_TAGS{'all'} = [ @EXPORT_OK ];
 
 our @EXPORT = ( @{ $EXPORT_TAGS{'utilities'} }, @{ $EXPORT_TAGS{'constants'} } );
 
-our $VERSION = "2.07";
+our $VERSION = "2.08";
 
 our $bzerrno = "";
 our $gzerrno;
@@ -913,6 +914,71 @@ be used safely.
 
 =back
 
+=head1 Compress::Bzip2 1.03 COMPATIBILITY
+
+While the 2.x thread forked off of 1.00, another line of development
+came to a head at 1.03.  The 1.03 version worked with bzlib 1.0.2, had
+improvements to the error handling, single buffer inflate/deflate, a
+streaming interface to inflate/deflate, and a cpan style test suite.
+
+=over 5
+
+=head2 B<$dest = compress( $string, [$level] )>
+
+Alias to memBzip, this compresses string, using the optional
+compression level, 1 through 9, the default being 1.  Returns a string
+containing the compressed data.
+
+On error I<undef> is returned.
+
+=head2 B<$dest = decompress($string)>
+
+Alias to memBunzip, this decompresses the data in string, returning a
+string containing the decompressed data.
+
+On error I<undef> is returned.
+
+=head2 B<$stream = compress_init( [PARAMS] )>
+
+Alias to bzdeflateInit.  In addition to the named parameters
+documented for bzdeflateInit, the following are accepted:
+
+   -level, alias to -blockSize100k
+   -buffer, to set the buffer size.
+
+The -buffer option is ignored.  The intermediate buffer size is not
+changeable.
+
+=head2 B<$stream = decompress_init( [PARAMS] )>
+
+Alias to bzinflateInit.  See bzinflateInit for a description of the parameters.
+The option "-buffer" is accepted, but ignored.
+
+=head2 B<$output = $stream->add( $string )>
+
+Add data to be compressed/decompressed.  Returns whatever output is available
+(possibly none, if it's still buffering it), or undef on error.
+
+=head2 B<$output = $stream->finish( [$string] )>
+
+Finish the operation; takes an optional final data string.  Whatever is
+returned completes the output; returns undef on error.
+
+=head2 B<$stream->error>
+
+Like the function, but applies to the current object only.  Note that errors
+in a stream object are also returned by the function.
+
+=head2 B<$stream->input_size>
+
+Alias to total_in.  Total bytes passed to the stream.
+
+=head2 B<$stream->output_size>
+
+Alias to total_out.  Total bytes received from the stream.
+
+=back
+
 =head1 GZIP COMPATIBILITY INTERFACE
 
 Except for the exact state and error numbers, this package presents an
@@ -1074,7 +1140,7 @@ automatically grown to fit the amount of output available.
 
 Here is a definition of the interface available:
 
-=head2 B<($d, $status) = bzdeflateInit( [OPT] )>
+=head2 B<($d, $status) = bzdeflateInit( [PARAMS] )>
 
 Initialises a deflation stream. 
 
@@ -1406,6 +1472,9 @@ This exports the Compress::Bzip2 1.x functions, for compatibility.
 
    compress
    decompress
+   compress_init
+   decompress_init
+   version
 
 These are actually aliases to memBzip and memBunzip.
 

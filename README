@@ -1,9 +1,9 @@
 
 Compress::Bzip2
 
-Version 2.07
+Version 2.08
 
-1 May 2005
+11 May 2005
 
 The subdirectory bzlib-src contains almost all of the files from the
 1.0.2 distribution of bzip2.  What's missing is that I only included

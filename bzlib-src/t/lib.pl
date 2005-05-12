@@ -1,4 +1,6 @@
-use File::Copy ;
+use File::Copy;
+use Cwd;
+use Config;
 
 BEGIN {
   eval { require File::Spec::Functions ; File::Spec::Functions->import( qw(catfile rel2abs) ) } ;
@@ -6,11 +8,6 @@ BEGIN {
 }
 
 require VMS::Filespec if $^O eq 'VMS';
-
-$::BZIP = $ENV{BZLIB_BIN} ? catfile( $ENV{BZLIB_BIN}, 'bzip2') :
-    -x 'bzip2' ? rel2abs( 'bzip2' ) : 'bzip2';
-
-$::debugf = $ENV{DEBUG};
 
 sub dump_block {
   my %block;
@@ -82,3 +79,81 @@ sub display_file {
     close($in);
   }
 }
+our $BZLIB_BIN ;
+our $BZLIB_LIB ;
+our $BZLIB_INCLUDE ;
+our $BUILD_BZLIB ;
+
+sub ParseCONFIG {
+  my $CONFIG = shift || 'config.in' ;
+
+  my ($k, $v) ;
+  my @badkey = () ;
+  my %Info = () ;
+  my @Options = qw( BZLIB_INCLUDE BZLIB_LIB BUILD_BZLIB BZLIB_BIN ) ;
+  my %ValidOption = map {$_, 1} @Options ;
+  my %Parsed = %ValidOption ;
+  my $debugf = 0;
+
+  print STDERR "Parsing $CONFIG...\n" if $debugf;
+
+  if (!open(F, "<$CONFIG")) {
+    warn "warning: failed to open $CONFIG: $!\n";
+  }
+  else {
+    while (<F>) {
+      chomp;
+      s/#.*$//;
+      next if !/\S/;
+
+      ($k, $v) = split(/\s*=\s*/, $_, 2) ;
+      $k = uc $k ;
+
+      if ($ValidOption{$k}) {
+	delete $Parsed{$k} ;
+	$Info{$k} = $v ;
+      }
+      else {
+	push(@badkey, $k) ;
+      }
+    }
+    close F ;
+  }
+
+  print STDERR "Unknown keys in $CONFIG ignored [@badkey]\n" if $debugf && scalar(@badkey) ;
+
+  $BZLIB_INCLUDE = $ENV{'BZLIB_INCLUDE'} || $Info{'BZLIB_INCLUDE'} ;
+  $BZLIB_LIB = $ENV{'BZLIB_LIB'} || $Info{'BZLIB_LIB'} ;
+  $BZLIB_BIN = $ENV{'BZLIB_BIN'} || $Info{'BZLIB_BIN'} ;
+
+  if ($^O eq 'VMS') {
+    $BZLIB_INCLUDE = VMS::Filespec::vmspath($BZLIB_INCLUDE);
+    $BZLIB_LIB = VMS::Filespec::vmspath($BZLIB_LIB);
+    $BZLIB_BIN = VMS::Filespec::vmspath($BZLIB_BIN);
+  }
+
+  $BUILD_BZLIB = 1;
+
+  print STDERR "Building internal libbz2 enabled\n" if $debugf ;
+
+  print STDERR <<EOM if $debugf ;
+INCLUDE	[$BZLIB_INCLUDE]
+LIB	[$BZLIB_LIB]
+BIN	[$BZLIB_BIN]
+
+EOM
+;
+
+  print STDERR "Looks Good.\n" if $debugf;
+}
+
+ParseCONFIG('../config.in') ;
+
+$::BZIP = 'bzip2'.$Config{exe_ext};
+$::BZIP = $BZLIB_BIN ? catfile( $BZLIB_BIN, $::BZIP ) :
+    -x $::BZIP ? rel2abs( $::BZIP ) : $::BZIP;
+
+$ENV{PATH} .= ';' . getcwd() . '\\bzlib-src' if $^O =~ /win32/i; # just in case
+
+$::debugf = $ENV{DEBUG};
+

@@ -88,3 +88,10 @@ in a lot of places.
      interoperate with bzip2 commands.  Sure, I think bzread and bzwrite
      are better choices for file IO, but this is perl, right?  There has
      to be at least 10 ways to do the same thing.
+
+2.08 Wed May 11 2005
+   - Sisyphus got the win32 nmake problem licked.  merging his stuff in.
+
+   - perldoc changes for bzip2 1.03 compatibility.
+
+   - got ownership of the module on cpan

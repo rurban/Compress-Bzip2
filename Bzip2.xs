@@ -2521,6 +2521,36 @@ MY_bzinflate(obj, buffer)
       XPUSHs(sv_2mortal(newSViv(global_bzip_errno)));
   }
 
+
+## $stream->prefix: Compress::Bzip2 1.03 compatibility function
+## ... only call this for a compress/deflate stream 
+
+SV*
+MY_prefix(obj)
+  Compress::Bzip2 obj
+
+  CODE:
+  { 
+    if (obj->strm.total_in_hi32)
+      XSRETURN_UNDEF;
+    else {
+      unsigned int in_len = obj->strm.total_in_lo32;
+      char out[6];
+
+      out[0] = 0xf0;
+      out[1] = (in_len >> 24) & 0xff;
+      out[2] = (in_len >> 16) & 0xff;
+      out[3] = (in_len >>  8) & 0xff;
+      out[4] = (in_len >>  0) & 0xff;
+      out[5] = 0;
+
+      RETVAL = newSVpvn(out,5);
+    }
+  }
+
+  OUTPUT:
+    RETVAL
+
 int
 MY_is_write(obj)
   Compress::Bzip2 obj
