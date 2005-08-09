@@ -95,3 +95,11 @@ in a lot of places.
    - perldoc changes for bzip2 1.03 compatibility.
 
    - got ownership of the module on cpan
+
+2.09 Tue Aug 9 2005
+   - change email addy
+
+   - patch for test 041-error.t, thanks to Dave Evans
+
+   - prototype error for bzwrite, limit variable was not optional, thanks
+     to Christian Drauch for pointing this out.

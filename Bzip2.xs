@@ -2233,7 +2233,7 @@ MY_bzreadline(obj, buf, len=4096)
     buf
 
 int
-MY_bzwrite(obj, buf, limit)
+MY_bzwrite(obj, buf, limit=0)
   Compress::Bzip2 obj
   SV *buf
   SV *limit

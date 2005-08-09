@@ -17,6 +17,7 @@ fallback/const-c.inc
 fallback/const-xs.inc
 t/lib.pl
 t/010-useability.t
+t/011-prototype.t
 t/020-compfile.t
 t/021-compfile.t
 t/022-compfile.t

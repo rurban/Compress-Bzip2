@@ -41,7 +41,7 @@ WriteMakefile(
 	      XS	 	=> { 'Bzip2.xs'    => 'Bzip2.c' },
 	      ($] >= 5.005 ?
 	       (ABSTRACT_FROM  => $Bzip2{pm},
-		AUTHOR         => 'Rob Janes <rwjanes@primus.ca>') : ()),
+		AUTHOR         => 'Rob Janes <arjay@cpan.org>') : ()),
 	      LIBS              => $BUILD_BZLIB ? [] : [ $BZLIB_LIB ? "-L$BZLIB_LIB -lbz2" : '-lbz2' ],
 	      DEFINE            => '',
 	      INC               => $BUILD_BZLIB ? '-Ibzlib-src' : $BZLIB_INCLUDE ? "-I$BZLIB_INCLUDE" : '',

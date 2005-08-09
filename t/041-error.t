@@ -52,10 +52,14 @@ ok ( compare_binary_files( $MODELFILE, "$PREFIX-protected.bz2" ), "no difference
 
 chmod( 0000, "$PREFIX-protected.bz2" ) or die;
 
-$d = Compress::Bzip2->new( -verbosity => $debugf ? 4 : 0, -blockSize100k => 1 );
-$res = $d->bzopen( "$PREFIX-protected.bz2", "w" );
+SKIP: {
+  skip "because running as root", 2 if $> == 0;
 
-ok( !$res, "open failed" );
+  $d = Compress::Bzip2->new( -verbosity => $debugf ? 4 : 0, -blockSize100k => 1 );
+  $res = $d->bzopen( "$PREFIX-protected.bz2", "w" );
 
-$res = $d->bzerror;
-ok( $res, "error set, is '$res' '$bzerrno'" );
+  ok( !$res, "open failed" );
+
+  $res = $d->bzerror;
+  ok( $res, "error set, is '$res' '$bzerrno'" );
+}

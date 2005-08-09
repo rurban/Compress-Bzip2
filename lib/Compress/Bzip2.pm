@@ -1,8 +1,8 @@
 # File	   : Bzip2.pm
 # Author   : Rob Janes
 # Created  : 14 April 2005
-# Modified : 1 May 2005
-# Version  : 2.07
+# Modified : 9 Aug 2005
+# Version  : 2.09
 #
 #     Copyright (c) 2005 Rob Janes. All rights reserved.
 #     This program is free software; you can redistribute it and/or
@@ -130,7 +130,7 @@ $EXPORT_TAGS{'all'} = [ @EXPORT_OK ];
 
 our @EXPORT = ( @{ $EXPORT_TAGS{'utilities'} }, @{ $EXPORT_TAGS{'constants'} } );
 
-our $VERSION = "2.08";
+our $VERSION = "2.09";
 
 our $bzerrno = "";
 our $gzerrno;
@@ -706,7 +706,7 @@ Compress::Bzip2 - Interface to Bzip2 compression library
 
     $bytesread = $bz->bzread($buffer [,$size]) ;
     $bytesread = $bz->bzreadline($line);
-    $byteswritten = $bz->bzwrite($buffer);
+    $byteswritten = $bz->bzwrite($buffer [,$limit]);
     $errstring = $bz->bzerror(); 
     $status = $bz->bzeof();
     $status = $bz->bzflush();
@@ -788,10 +788,13 @@ At this time B<bzreadline> ignores the variable C<$/>
 (C<$INPUT_RECORD_SEPARATOR> or C<$RS> when C<English> is in use). The
 end of a line is denoted by the C character C<'\n'>.
 
-=head2 B<$byteswritten = $bz-E<gt>bzwrite($buffer) ;>
+=head2 B<$byteswritten = $bz-E<gt>bzwrite($buffer [, $limit]) ;>
 
 Writes the contents of B<$buffer> to the compressed file. Returns the
 number of bytes actually written, or 0 on error.
+
+If $limit is given and non-zero, then only that many bytes from
+$buffer will be written.
 
 =head2 B<$status = $bz-E<gt>bzflush($flush) ;>
 
@@ -954,26 +957,26 @@ changeable.
 Alias to bzinflateInit.  See bzinflateInit for a description of the parameters.
 The option "-buffer" is accepted, but ignored.
 
-=head2 B<$output = $stream->add( $string )>
+=head2 B<$output = $stream-E<gt>add( $string )>
 
 Add data to be compressed/decompressed.  Returns whatever output is available
 (possibly none, if it's still buffering it), or undef on error.
 
-=head2 B<$output = $stream->finish( [$string] )>
+=head2 B<$output = $stream-E<gt>finish( [$string] )>
 
 Finish the operation; takes an optional final data string.  Whatever is
 returned completes the output; returns undef on error.
 
-=head2 B<$stream->error>
+=head2 B<$stream-E<gt>error>
 
 Like the function, but applies to the current object only.  Note that errors
 in a stream object are also returned by the function.
 
-=head2 B<$stream->input_size>
+=head2 B<$stream-E<gt>input_size>
 
 Alias to total_in.  Total bytes passed to the stream.
 
-=head2 B<$stream->output_size>
+=head2 B<$stream-E<gt>output_size>
 
 Alias to total_out.  Total bytes received from the stream.
 
@@ -1534,7 +1537,7 @@ The documentation for zlib, bzip2 and Compress::Zlib.
 
 =head1 AUTHOR
 
-Rob Janes, E<lt>rwjanes at primus.caE<gt>
+Rob Janes, E<lt>arjay at cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -1561,7 +1564,7 @@ streaming interface and error information were added by David Robins
 F<dbrobins@davidrobins.net>.
 
 Version 2 of I<Compress::Bzip2> is due to Rob Janes, of
-rwjanes@primus.ca.  This release is intended to give an interface
+arjay@cpan.org.  This release is intended to give an interface
 close to that of Compress::Zlib.  It's development forks from 1.00,
 not 1.03, so the streaming interface is not the same as that in 1.03,
 although apparently compatible as it passes the 1.03 test suite.
