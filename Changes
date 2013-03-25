@@ -103,3 +103,10 @@ in a lot of places.
 
    - prototype error for bzwrite, limit variable was not optional, thanks
      to Christian Drauch for pointing this out.
+
+2.10 2013-03-25 rurban
+   - [cpan #82308] make breaks on 5.17.7 by schubiger
+   - [cpan #21961] update ppport.h
+   - [cpan #25002] memBzip() ignores level
+     keep using default 6, but honor optional level argument
+   - use -std=c89 on gcc compat compilers

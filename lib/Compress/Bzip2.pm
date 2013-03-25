@@ -1,8 +1,8 @@
 # File	   : Bzip2.pm
 # Author   : Rob Janes
 # Created  : 14 April 2005
-# Modified : 9 Aug 2005
-# Version  : 2.09
+# Modified : 2013-03-25 17:35:13 rurban
+# Version  : 2.10
 #
 #     Copyright (c) 2005 Rob Janes. All rights reserved.
 #     This program is free software; you can redistribute it and/or
@@ -130,7 +130,7 @@ $EXPORT_TAGS{'all'} = [ @EXPORT_OK ];
 
 our @EXPORT = ( @{ $EXPORT_TAGS{'utilities'} }, @{ $EXPORT_TAGS{'constants'} } );
 
-our $VERSION = "2.09";
+our $VERSION = "2.10";
 
 our $bzerrno = "";
 our $gzerrno;
@@ -929,7 +929,7 @@ streaming interface to inflate/deflate, and a cpan style test suite.
 =head2 B<$dest = compress( $string, [$level] )>
 
 Alias to memBzip, this compresses string, using the optional
-compression level, 1 through 9, the default being 1.  Returns a string
+compression level, 1 through 9, the default being 6.  Returns a string
 containing the compressed data.
 
 On error I<undef> is returned.
