@@ -2177,8 +2177,7 @@ MY_bzread(obj, buf, len=4096)
   {
     if (SvREADONLY(buf) && PL_curcop != &PL_compiling)
       croak("bzread: buffer parameter is read-only");
-    if (!SvUPGRADE(buf, SVt_PV))
-      croak("bzread: cannot use buf argument as lvalue");
+    SvUPGRADE(buf, SVt_PV);
     SvPOK_only(buf);
     SvCUR_set(buf, 0);
 
@@ -2211,8 +2210,7 @@ MY_bzreadline(obj, buf, len=4096)
   {
     if (SvREADONLY(buf) && PL_curcop != &PL_compiling)
       croak("bzreadline: buffer parameter is read-only");
-    if (!SvUPGRADE(buf, SVt_PV))
-      croak("bzreadline: cannot use buf argument as lvalue");
+    SvUPGRADE(buf, SVt_PV);
     SvPOK_only(buf);
     SvCUR_set(buf, 0);
 
