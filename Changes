@@ -110,3 +110,5 @@ in a lot of places.
    - [cpan #25002] memBzip() ignores level
      keep using default 6, but honor optional level argument
    - use -std=c89 on gcc compat compilers
+   - fix -Wimplicit-int warning for show_bzversion main()
+   - [cpan #82576] fix pod formatting errors
