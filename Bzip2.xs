@@ -1738,7 +1738,7 @@ MY_bz_seterror(error_num, error_str)
     RETVAL
 
 SV *
-memBzip(sv, level = 1)
+memBzip(sv, level = 6)
   SV* sv;
   int level
 
@@ -1776,7 +1776,7 @@ memBzip(sv, level = 1)
     new_len = out_len;
 
     out[0] = 0xf0;
-    err = BZ2_bzBuffToBuffCompress((char*)out+5,&new_len,(char*)in,in_len,6,0,240);
+    err = BZ2_bzBuffToBuffCompress((char*)out+5,&new_len,(char*)in,in_len,level,0,240);
 
     if (err != BZ_OK || new_len > out_len) {
       SvREFCNT_dec(RETVAL);
