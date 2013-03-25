@@ -9,6 +9,6 @@
  * 2. run this to get the bzip2 version string
  ****************************************************/
 
-main() {
+int main(void) {
   printf("%s\n", BZ2_bzlibVersion());
 }
