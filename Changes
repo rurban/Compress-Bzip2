@@ -125,3 +125,5 @@ in a lot of places.
    - [cpan #49618] fix for win32 nmake + gcc
    - fix t/041-error.t bzopen does not work with filehandles with 5.6,
      global destruction of IO::Handle mixed up with a socket
+   - [cpan #36246] compress 0-byte srcfiles correctly. by Jeffrey Ratcliffe.
+     fixes debian bug 464205

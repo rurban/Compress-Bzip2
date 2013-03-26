@@ -1,6 +1,6 @@
 # -*- mode: perl -*-
 
-use Test::More tests => 5;
+use Test::More tests => 7;
 
 ## compress sample1 from the bzip2 1.0.2 distribution
 ## compare against bzip2 command with od -x and diff
@@ -43,6 +43,15 @@ ok( !$res, "file was closed $res $Compress::Bzip2::bzerrno" );
 close($in);
 
 ok ( compare_binary_files( "$PREFIX-sample.bz2", $MODELFILE ), 'no differences with reference' );
+
+$d = bzopen( "$PREFIX-sample.bz2", "w" );
+my $out = $d->bzwrite( $buf, '' );
+is($out, 0, "cpan #36246 do not shortcut compressing a 0-byte file");
+if ( $out < 0 ) {
+  diag "error: $out $Compress::Bzip2::bzerrno\n";
+}
+$d->bzclose;
+ok(-s "$PREFIX-sample.bz2", "filesize > 0");
 
 #system( "bzip2 < $INFILE | od -x > $PREFIX-reference-bz2.odx" );
 #system( "od -x < $PREFIX-sample.bz2 | diff - $PREFIX-reference-bz2.odx > $PREFIX-diff.txt" );

@@ -1499,8 +1499,6 @@ int bzfile_write( obj, bufferOfUncompressed, nUncompressed ) bzFile* obj; char *
     return -2;
   }
 
-  if (nUncompressed == 0) return 0;
-
   while (True) {
     if ( obj->run_progress == 0 ) {
       ret = BZ2_bzCompressInit ( &(obj->strm), obj->blockSize100k, obj->verbosity, obj->workFactor );
@@ -2290,15 +2288,10 @@ MY_bzwrite(obj, buf, limit=0)
     else
       bufp = SvPV(buf, len);
 
-    if (len) {
-      RETVAL = bzfile_write( obj, bufp, len);
+    RETVAL = bzfile_write( obj, bufp, len);
 
-      if ( RETVAL > 0 )
-	SvCUR_set( buf, RETVAL );
-    }
-    else {
-      RETVAL  = 0;
-    }
+    if ( RETVAL >= 0 )
+      SvCUR_set( buf, RETVAL );
   }
 
   OUTPUT:
