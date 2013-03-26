@@ -1051,7 +1051,7 @@ int bzfile_readline( obj, lineOfUncompress, maxLineLength ) bzFile* obj; char *l
     }
     else {
       n = bzfile_read( obj, obj->bufferOfLines, sizeof(obj->bufferOfLines) );
-      if ( n == -1 ) {
+      if ( n < 0 ) {
 	error_num = bzfile_geterrno( obj );
 
 	if ( error_num == BZ_IO_ERROR ) {

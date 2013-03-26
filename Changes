@@ -112,6 +112,9 @@ in a lot of places.
    - use -std=c89 on gcc compat compilers
    - fix -Wimplicit-int warning for show_bzversion main()
    - fix a couple if dangling else corner cases
+     and format string errors
    - [cpan #82576] fix pod formatting errors
    - [cpan #48128] support memBunzip BZh header w/o extra size prefix
      and grow dest buf dynamically. Tests in t/040-memory.t
+   - [cpan #40741] fix bzreadline blocked on the broken bz2 files
+   
