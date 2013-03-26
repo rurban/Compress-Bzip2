@@ -913,6 +913,11 @@ I<an> error in numeric context. Use B<bzerror()> to check for specific
 I<bzlib> errors. The I<bzcat> example below shows how the variable can
 be used safely.
 
+=head2 B<$bz-E<gt>prefix>
+
+Returns the additional 5 byte header which is prepended to the bzip2
+header  starting with C<BZh> when using memBzip/compress.
+
 =head1 Compress::Bzip2 1.03 COMPATIBILITY
 
 While the 2.x thread forked off of 1.00, another line of development
@@ -1100,17 +1105,17 @@ provided which provide similar functionality.
 
 =head2 B<$compressed = memBzip($buffer);>
 
-Compresses B<$source>. If successful it returns the compressed
+Compresses B<$buffer>. If successful it returns the compressed
 data. Otherwise it returns I<undef>.
 
 The buffer parameter can either be a scalar or a scalar reference.
 
 Essentially, an in-memory bzip file is created. It creates a minimal
-bzip header.
+bzip header, which adds 5 bytes before the bzip2 specific BZh header.
 
 =head2 B<$uncompressed = memBunzip($buffer);>
 
-Uncompresses B<$source>. If successful it returns the uncompressed
+Uncompresses B<$buffer>. If successful it returns the uncompressed
 data. Otherwise it returns I<undef>.
 
 The source buffer can either be a scalar or a scalar reference.

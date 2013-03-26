@@ -264,6 +264,7 @@ long bzfile_clear_totals( obj ) bzFile *obj; {
 #endif
   obj->total_in = 0;
   obj->total_out = 0;
+  return 0;
 }
 
 #ifdef CAN_PROTOTYPE
@@ -477,7 +478,7 @@ int bzfile_setparams( obj, param, setting ) bzFile* obj; char* param; int settin
     savsetting = -1;
   }
 
-  if (obj->verbosity>1)
+  if (obj->verbosity>1) {
     if ( savsetting == -1 )
       PerlIO_printf(PerlIO_stderr(), "debug: bzfile_setparams invalid param %s => %d\n", param, setting);
     else
@@ -485,7 +486,7 @@ int bzfile_setparams( obj, param, setting ) bzFile* obj; char* param; int settin
 	PerlIO_printf(PerlIO_stderr(), "debug: bzfile_setparams query %s is %d\n", param, savsetting);
       else
 	PerlIO_printf(PerlIO_stderr(), "debug: bzfile_setparams set %s (is %d) => %d\n", param, savsetting, setting);
-
+  }
   return savsetting;
 }
 
@@ -1286,17 +1287,18 @@ int bzfile_read( obj, bufferOfUncompress, nUncompress ) bzFile* obj; char *buffe
 
     if ( obj->strm.avail_in == 0 ) {
       /* still zero bytes in the input hopper?  why? ... */
-      if ( !obj->pending_io_error )
+      if ( !obj->pending_io_error ) {
 	if ( obj->run_progress != 0 && obj->run_progress != 10 ) {
 	  if ( !bytes_uncompressed_count ) {
 	    BZ_SETERR(obj, BZ_UNEXPECTED_EOF, NULL);
 
-	    if (obj->verbosity>=2)
+	    if (obj->verbosity>=2) {
 	      PerlIO_printf(PerlIO_stderr(), "debug: bzfile_read got an unexpected EOF, run_progress=%d, avail_in=%d, avail_out=%d\n",
 			    obj->run_progress,
 			    obj->strm.avail_in,
 			    obj->strm.avail_out
 			    );
+	    }
 
 	    return -1;
 	  }
@@ -1305,41 +1307,44 @@ int bzfile_read( obj, bufferOfUncompress, nUncompress ) bzFile* obj; char *buffe
 	  obj->pending_io_error = True;
 	  obj->io_error = BZ_UNEXPECTED_EOF;
 
-	  if (obj->verbosity>=2)
+	  if (obj->verbosity>=2) {
 	    PerlIO_printf(PerlIO_stderr(), "debug: bzfile_read got an unexpected EOF, run_progress=%d, set pending with %d bytes to go, avail_in=%d, avail_out=%d\n",
 			  obj->run_progress,
 			  bytes_uncompressed_count,
 			  obj->strm.avail_in,
 			  obj->strm.avail_out
 			  );
+	  }
 	}
 	else {
 	  obj->pending_io_error = True;
 	  obj->io_error = BZ_IO_EOF;
 
-	  if (obj->verbosity>=2)
+	  if (obj->verbosity>=2) {
 	    PerlIO_printf(PerlIO_stderr(), "debug: bzfile_read got an EOF, run_progress=%d, set pending with %d bytes to go, avail_in=%d, avail_out=%d\n",
 			  obj->run_progress,
 			  bytes_uncompressed_count,
 			  obj->strm.avail_in,
 			  obj->strm.avail_out
 			  );
+	  }
 	}
-
+      }
       /* if no io_error is pending, this is a proper end of file */
       return bytes_uncompressed_count;
     }
     else {
-      if ( obj->run_progress == 1 || obj->run_progress == 11 )
+      if ( obj->run_progress == 1 || obj->run_progress == 11 ) {
 	/* indicate we have data to uncompress */
 	obj->run_progress = obj->run_progress == 1 ? 2 : 12;
-      else if ( obj->run_progress == 0 || obj->run_progress == 10 ) {
+      } else if ( obj->run_progress == 0 || obj->run_progress == 10 ) {
 	ret = BZ2_bzDecompressInit ( &(obj->strm), obj->verbosity, obj->small );
 
 	if (ret != BZ_OK) {
-	  if (obj->verbosity>1)
+	  if (obj->verbosity>1) {
 	    warn("Error: bzfile_read: BZ2_bzDecompressInit error %d on %d, %d\n",
 		 ret, obj->verbosity, obj->small);
+	  }
 
 	  BZ_SETERR(obj, ret, NULL);
 	  return -1;
@@ -1356,7 +1361,7 @@ int bzfile_read( obj, bufferOfUncompress, nUncompress ) bzFile* obj; char *buffe
       else
 	ret = BZ2_bzDecompress( &(obj->strm) );
 
-      if (obj->verbosity>=4)
+      if (obj->verbosity>=4) {
 	PerlIO_printf(PerlIO_stderr(), "\ndebug: bzfile_read BZ2_bzDecompress ret %d, run_progress=%d, avail_in=%d/%d, avail_out=%d/%d\n",
 		      ret,
 		      obj->run_progress,
@@ -1365,6 +1370,7 @@ int bzfile_read( obj, bufferOfUncompress, nUncompress ) bzFile* obj; char *buffe
 		      tracker,
 		      obj->strm.avail_out
 		      );
+      }
 
       if (ret != BZ_OK && ret != BZ_STREAM_END) {
 	if ( ret != BZ_DATA_ERROR_MAGIC || !obj->allowUncompressedRead ) {
@@ -1821,17 +1827,36 @@ memBunzip(sv)
 
     in = (unsigned char*)SvPV(sv, len);
     if (len < 5 + 3 || in[0] < 0xf0 || in[0] > 0xf1) {
-      warn("invalid buffer (too short %d or bad marker %d)",len,in[0]);
-      XSRETURN_UNDEF;
+      if (len > 16 && in[0] == 'B' && in[1] == 'Z' && in[2] == 'h') {
+	in_len = len;
+	out_len = 0;
+	RETVAL = newSV(len * 10);
+      } else {
+	warn("invalid buffer (too short %d or bad marker %d)",len,in[0]);
+	XSRETURN_UNDEF;
+      }
+    } else {
+      in_len = len - 5;
+      out_len = (in[1] << 24) | (in[2] << 16) | (in[3] << 8) | in[4];
+      RETVAL = newSV(out_len > 0 ? out_len : 1);
     }
-    in_len = len - 5;
-    out_len = (in[1] << 24) | (in[2] << 16) | (in[3] << 8) | in[4];
-    RETVAL = newSV(out_len > 0 ? out_len : 1);
     SvPOK_only(RETVAL);
     out = (unsigned char*)SvPVX(RETVAL);
-    new_len = out_len;
-    err = BZ2_bzBuffToBuffDecompress((char*)out,&new_len,(char*)in+5,in_len,0,0);
-    if (err != BZ_OK || new_len != out_len) {
+    new_len = out_len ? out_len : len * 3; /* guess out size */
+    err = BZ2_bzBuffToBuffDecompress((char*)out,&new_len,
+      out_len ? (char*)in+5:(char *)in, in_len,0,0);
+    while (!out_len && (err == BZ_OUTBUFF_FULL)) {
+      new_len = SvLEN(RETVAL) * 2;
+      SvGROW(RETVAL, new_len);
+      err = BZ2_bzBuffToBuffDecompress((char*)out,&new_len,
+				       (char *)in,in_len,0,0);
+    }
+    if (err != BZ_OK) {
+      SvREFCNT_dec(RETVAL);
+      BZ_SETERR(NULL, err, ix==1 ? "decompress" : "memBunzip");
+      XSRETURN_UNDEF;
+    }
+    if (out_len && new_len != out_len) {
       SvREFCNT_dec(RETVAL);
       BZ_SETERR(NULL, err, ix==1 ? "decompress" : "memBunzip");
       XSRETURN_UNDEF;

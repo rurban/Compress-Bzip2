@@ -1,7 +1,6 @@
 # -*- mode: perl -*-
 
-use Test::More tests => 10;
-#use Test::More qw(no_plan);
+use Test::More tests => 15;
 
 BEGIN {
   use_ok('Compress::Bzip2', qw(:utilities :bzip1));
@@ -17,6 +16,8 @@ and the Momewrathes outgrabe
 
 my $compress = memBzip( $string );
 my $uncompress = memBunzip( $compress );
+
+ok( substr($compress,5,16) =~ /^BZh/, "compressed starts with bzip magic header" );
 
 ok( $compress ne $string, "string was not inouted" );
 ok( length($compress)-10 < length($string), "string compression - ".length($compress).' vs '.length($string) );
@@ -36,3 +37,23 @@ $uncompress = decompress( $compress );
 ok( $compress ne $string, "bzip1 string was not inouted" );
 ok( length($compress)-10 < length($string), "bzip1 string compression - ".length($compress).' vs '.length($string) );
 ok( $uncompress eq $string, "bzip1 decompress is same as the original" );
+
+do 't/lib.pl';
+
+# allow plain BZh files with memBunzip also
+my $INFILE = catfile( qw(bzlib-src sample0.bz2) );
+local $/ = undef;
+open( IN, "< $INFILE" ) or die "$INFILE: $!";
+binmode IN;
+my $sample0 = <IN>;
+close( IN );
+
+$uncompress = memBunzip( $sample0 );
+ok( $uncompress, "sample0 uncompressed w/o header" );
+like( $uncompress, qr/^That\'s great, it starts with an earthquake/ );
+
+my $header = pack("c", 0xf0);
+$header .= pack "N", $uncompress ? length($uncompress) : 2027;
+$uncompress = memBunzip( $header . $sample0 );
+ok( $uncompress, "sample0 uncompressed w/ header" );
+like( $uncompress, qr/^That\'s great, it starts with an earthquake/ );

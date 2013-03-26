@@ -13,7 +13,7 @@ use Compress::Bzip2 qw(compress decompress);
 
 # globals
 
-my $Level = 1;
+my $Level = 6;
 my ($In,$Out) = (0,0);
 my @AlNum = ('A'..'Z','a'..'z','0'..'9',' ');
 
@@ -76,7 +76,7 @@ for my $random(1..100) {
   $str .= ($AlNum[rand @AlNum] x rand 1000) for 1..100+rand 900;
   ok(try($str),"long string $random");
 }
-#diag(sprintf "compression ratio %.2f%%",100*$Out/$In);
+diag(sprintf "compression ratio %.2f%%",100*$Out/$In);
 
 # binary strings
 
@@ -87,5 +87,5 @@ for my $random(1..100) {
   $str .= chr(rand 256) for 1..1000+rand 9000;
   ok(try($str),"binary string $random");
 }
-#diag(sprintf "compression ratio %.2f%%",100*$Out/$In);
+diag(sprintf "compression ratio %.2f%%",100*$Out/$In);
 
