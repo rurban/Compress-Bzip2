@@ -753,6 +753,9 @@ If a reference to an open filehandle is passed in place of the
 filename, it better be positioned to the start of a
 compression/decompression sequence.
 
+WARNING: With Perl 5.6 you cannot use a filehandle because of
+SEGV in destruction with bzclose or an implicit close.
+
 =head2 B<$bz = Compress::Bzip2-E<gt>new( [PARAMS] )>
 
 Create a Compress::Bzip2 object.  Optionally, provide

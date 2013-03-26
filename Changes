@@ -122,3 +122,5 @@ in a lot of places.
      support PV ref as bzinflate() buffer arg as documented.
      support status checks in chunked bzinflate() calls. t/060-inflate.t
    - [cpan #49618] fix for win32 nmake + gcc
+   - fix t/041-error.t bzopen does not work with filehandles with 5.6,
+     global destruction of IO::Handle mixed up with a socket
