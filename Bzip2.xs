@@ -97,8 +97,10 @@ char * string;
     case SVt_PVHV:
     case SVt_PVCV:
       croak("%s: buffer parameter is not a SCALAR reference", string);
+      break;
+    default:
+      ;
     }
-
     /*    if (SvROK(sv))
 	  croak("%s: buffer parameter is a reference to a reference", string) ;*/
   }
@@ -738,7 +740,7 @@ int bzfile_flush( obj ) bzFile* obj; {
 	BZ_SETERR(obj, ret, NULL);
 
 	if (obj->verbosity>1)
-	  warn("Error: bzfile_flush, BZ2_bzCompress error %d, strm is %p, strm.state is %p, in state %p\n",
+	  warn("Error: bzfile_flush, BZ2_bzCompress error %d, strm is %p, strm.state is %p, in state %d\n",
 	       ret, &(obj->strm), obj->strm.state, *((int*)obj->strm.state));
 
 	return -1;
@@ -1377,7 +1379,7 @@ int bzfile_read( obj, bufferOfUncompress, nUncompress ) bzFile* obj; char *buffe
 	  BZ_SETERR(obj, ret, NULL);
 
 	  if (obj->verbosity>1)
-	    warn("Error: bzfile_read, BZ2_bzDecompress error %d, strm is %p, strm.state is %p, in state %p\n",
+	    warn("Error: bzfile_read, BZ2_bzDecompress error %d, strm is %p, strm.state is %p, in state %d\n",
 		 ret, &(obj->strm), obj->strm.state, *((int*)obj->strm.state));
 
 	  return -1;
@@ -1545,7 +1547,7 @@ int bzfile_write( obj, bufferOfUncompressed, nUncompressed ) bzFile* obj; char *
       BZ_SETERR(obj, ret, NULL);
 
       if (obj->verbosity>1)
-	warn("Error: bzfile_write, BZ2_bzCompress error %d, strm is %p, strm.state is %p, in state %p\n",
+	warn("Error: bzfile_write, BZ2_bzCompress error %d, strm is %p, strm.state is %p, in state %d\n",
 	     ret, &(obj->strm), obj->strm.state, *((int*)obj->strm.state));
 
       return -1;
@@ -1832,7 +1834,7 @@ memBunzip(sv)
 	out_len = 0;
 	RETVAL = newSV(len * 10);
       } else {
-	warn("invalid buffer (too short %d or bad marker %d)",len,in[0]);
+	warn("invalid buffer (too short %ld or bad marker %d)",len,in[0]);
 	XSRETURN_UNDEF;
       }
     } else {
@@ -2385,7 +2387,7 @@ MY_bzdeflate(obj, buffer)
 	    SvCUR_set( outbuf, outp-firstp) ;
 
 	    if ( obj->verbosity>=4 )
-	      PerlIO_printf(PerlIO_stderr(), "debug: bzdeflate collected %d, outbuf is now %d\n",
+	      PerlIO_printf(PerlIO_stderr(), "debug: bzdeflate collected %d, outbuf is now %ld\n",
 			    amt_collected, outp-firstp);
 	  }
 
@@ -2417,7 +2419,7 @@ MY_bzdeflate(obj, buffer)
       SvCUR_set( outbuf, outp-firstp) ;
 
       if ( obj->verbosity>=4 )
-	PerlIO_printf(PerlIO_stderr(), "debug: bzdeflate collected %d, outbuf is now %d\n",
+	PerlIO_printf(PerlIO_stderr(), "debug: bzdeflate collected %d, outbuf is now %ld\n",
 		      amt_collected, outp-firstp);
     }
 
