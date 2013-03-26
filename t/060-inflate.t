@@ -1,7 +1,6 @@
 # -*- mode: perl -*-
 
-use Test::More tests => 4;
-#use Test::More qw(no_plan);
+use Test::More tests => 5;
 
 ## stream uncompress sample2 from the bzip2 1.0.2 distribution
 ## compare against bunzip2 command with od -x and diff
@@ -18,23 +17,24 @@ my $INFILE = catfile( qw(bzlib-src sample2.bz2) );
 ( my $MODELFILE = $INFILE ) =~ s/\.bz2$/.ref/;
 my $PREFIX = catfile( qw(t 060-tmp) );
 
-my ( $in, $out, $d, $outbuf, $counter, $bytes, $bytesout );
-
+my ( $in, $out, $d, $outbuf, $status, $counter, $bytes, $bytesout );
+$debugf = $ENV{DEBUG} ? 1 : 0;
 open( $in, "< $INFILE" ) or die "$INFILE: $!";
 open( $out, "> $PREFIX-out.txt" ) or die "$PREFIX-out.txt: $!";
 
 ## verbosity 0-4, small 0,1, blockSize100k 1-9, workFactor 0-250, readUncompressed 0,1
-$d = bzinflateInit( -verbosity => $debugf ? 4 : 0 );
+( $d, $status ) = bzinflateInit( -verbosity => $debugf ? 4 : 0 );
 
-ok( $d, "bzinflateInit was successful" );
+ok( $d && $status == BZ_OK, "bzinflateInit was successful" );
 
 $counter = 0;
 $bytes = 0;
 $bytesout = 0;
 while ( my $ln = sysread( $in, $buf, 512 ) ) {
-  $outbuf = $d->bzinflate( $buf );
-  if ( !defined($outbuf) ) {
-    print STDERR "error: $outbuf $bzerrno\n";
+  # test buf as scalar or scalarref
+  ( $outbuf, $status ) = $d->bzinflate( $counter % 2 ? \$buf : $buf );
+  if ( $status != BZ_STREAM_END && $status != BZ_OK || !defined($outbuf) ) {
+    diag "error: $outbuf $bzerrno\n";
     last;
   }
 
@@ -47,7 +47,9 @@ while ( my $ln = sysread( $in, $buf, 512 ) ) {
   $counter++;
 }
 
-$outbuf = $d->bzclose;
+( $outbuf, $status ) = $d->bzclose;
+ok( $status == BZ_OK, "bzclose was successful" );
+
 if ( defined($outbuf) && $outbuf ne '' ) {
   syswrite( $out, $outbuf );
   $bytesout += length($outbuf);

@@ -2504,10 +2504,12 @@ MY_bzinflate(obj, buffer)
     char *bufp, *inp;
     int error_flag = 0;
 
+    if (SvTYPE(buffer) == SVt_RV)
+      buffer = SvRV(buffer);
     bufp = (char*) SvPV( buffer, bufl );
     bzfile_streambuf_deposit( obj, bufp, bufl );
 
-    while ( -1 != ( amt_collected = bzfile_read( obj, collect_buffer, sizeof(collect_buffer) ) ) ) {
+    while ( ( amt_collected = bzfile_read( obj, collect_buffer, sizeof(collect_buffer) ) ) >= 0 ) {
       if ( obj->verbosity>=4 )
 	PerlIO_printf(PerlIO_stderr(), "debug: bzinflate, bzfile_read returned %d bytes\n", amt_collected);
 

@@ -117,4 +117,7 @@ in a lot of places.
    - [cpan #48128] support memBunzip BZh header w/o extra size prefix
      and grow dest buf dynamically. Tests in t/040-memory.t
    - [cpan #40741] fix bzreadline blocked on the broken bz2 files
-   - [cpan #84223] fixed ignored bzinflateInit args
+   - [cpan #84223] fix ignored bzinflateInit args
+   - [cpan #48124] Multiple issues with bzinflate
+     support PV ref as bzinflate() buffer arg as documented.
+     support status checks in chunked bzinflate() calls. t/060-inflate.t
