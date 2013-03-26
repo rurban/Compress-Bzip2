@@ -121,3 +121,4 @@ in a lot of places.
    - [cpan #48124] Multiple issues with bzinflate
      support PV ref as bzinflate() buffer arg as documented.
      support status checks in chunked bzinflate() calls. t/060-inflate.t
+   - [cpan #49618] fix for win32 nmake + gcc

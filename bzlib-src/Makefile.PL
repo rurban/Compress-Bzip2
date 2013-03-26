@@ -51,12 +51,13 @@ libbz2$(LIB_EXT): ' . $objects . '
 # 	$(CCCMD) $(CCCDLFLAGS) "-I$(PERL_INC)" $(PASTHRU_DEFINE) $(DEFINE) -obzip2$(EXE_EXT) bzip2.c $(LDFLAGS) libbz2$(LIB_EXT)' :
 #       'bzip2$(EXE_EXT): bzip2$(OBJ_EXT) libbz2$(LIB_EXT)' )
 
- ( $^O =~ /win32/i ? $make eq 'nmake' ?
+ ( $^O =~ /win32/i ? 
+   ($make eq 'nmake' && $cc eq 'cl') ?
       'bzip2$(EXE_EXT): bzip2.c libbz2$(LIB_EXT)
-	$(CC) /MD -o bzip2$(EXE_EXT) bzip2.c libbz2$(LIB_EXT)' :
-      'bzip2$(EXE_EXT): bzip2.c libbz2$(LIB_EXT)
-	$(CC) -o bzip2$(EXE_EXT) bzip2.c libbz2$(LIB_EXT)' :
-      'bzip2$(EXE_EXT): bzip2$(OBJ_EXT) libbz2$(LIB_EXT)' ) . '
+	$(CC) /MD -o bzip2$(EXE_EXT) bzip2.c libbz2$(LIB_EXT)'
+    : 'bzip2$(EXE_EXT): bzip2.c libbz2$(LIB_EXT)
+	$(CC) -o bzip2$(EXE_EXT) bzip2.c libbz2$(LIB_EXT)'
+  : 'bzip2$(EXE_EXT): bzip2$(OBJ_EXT) libbz2$(LIB_EXT)' ) . '
 ';
 
 }
