@@ -25,9 +25,14 @@ WriteMakefile(
 #libbz2$(LIB_EXT): $(O_FILES)
 
 package MY;
+use File::Basename;
 
 sub top_targets {
   my $make = $Config::Config{make};
+  $make = basename($make);
+  if ($^O =~ /win32/i) {
+    $make =~ s/.exe$//i;
+  }
   my $cc = $Config::Config{cc};
   my $objects = join( ' ', map { $_.'$(OBJ_EXT)' } qw(blocksort huffman crctable randtable compress decompress bzlib) );
   my $ar_args = $cc eq 'cl' && $^O =~ /win32/i ? '-out:$@' : '$(AR_STATIC_ARGS) $@';

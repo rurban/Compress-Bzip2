@@ -60,7 +60,7 @@ ok ( compare_binary_files( $MODELFILE, $TMPFILE ), "no differences with $MODELFI
 chmod( 0000, $TMPFILE ) or die;
 
 SKIP: {
-  skip "because running as root", 2 if $> == 0;
+  skip "0000 but writable ($>/$^O)", 2 if -w $TMPFILE;
 
   $d = Compress::Bzip2->new( -verbosity => $debugf ? 4 : 0, -blockSize100k => 1 );
   $res = $d->bzopen( $TMPFILE, "w" );
