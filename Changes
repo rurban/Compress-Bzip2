@@ -105,6 +105,7 @@ in a lot of places.
      to Christian Drauch for pointing this out.
 
 2.10 2013-03-25 rurban
+   - updated bzlib-src from 1.0.2 to 1.0.6
    - [cpan #82308] make breaks on 5.17.7 by schubiger
    - [cpan #21961] update ppport.h
    - [cpan #25002] memBzip() ignores level

@@ -81,7 +81,7 @@ for my $random(1..100) {
   $str .= ($AlNum[rand @AlNum] x rand 1000) for 1..100+rand 900;
   ok(try($str, $level),"long string $random");
 }
-diag(sprintf "compression ratio %.2f%%",100*$Out/$In);
+#diag(sprintf "compression ratio %.2f%%",100*$Out/$In);
 
 # binary strings
 
@@ -94,5 +94,5 @@ for my $random(1..100) {
   $str .= chr(rand 256) for 1..1000+rand 9000;
   ok(try($str, $level),"binary string $random");
 }
-diag(sprintf "compression ratio %.2f%%",100*$Out/$In);
+#diag(sprintf "compression ratio %.2f%%",100*$Out/$In);
 
