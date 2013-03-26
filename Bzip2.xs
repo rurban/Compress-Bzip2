@@ -74,9 +74,16 @@ typedef bzFile* Compress__Bzip2;
 
 #ifdef CAN_PROTOTYPE
 void bzfile_streambuf_set( bzFile* obj, char* buffer, int bufsize );
+int bzfile_closeread( bzFile* obj, int abandon );
+int bzfile_closewrite( bzFile* obj, int abandon );
+int bzfile_read( bzFile* obj, char *bufferOfUncompress, int nUncompress );
 #else
 void bzfile_streambuf_set( );
+int bzfile_closeread( );
+int bzfile_closewrite( );
+int bzfile_read( );
 #endif
+
 
 static SV* 
 #ifdef CAN_PROTOTYPE
@@ -166,7 +173,6 @@ char* error_info;
 {
   char *errstr ;
   SV * bzerror_sv = perl_get_sv(BZERRNO, FALSE) ;
-  int tmp;
 
   global_bzip_errno = error_num;
   sv_setiv(bzerror_sv, error_num) ; /* set the integer part of the perl thing */
@@ -497,7 +503,6 @@ bzFile* bzfile_open( char *filename, char *mode, bzFile *obj ) {
 #else
 bzFile* bzfile_open( filename, mode, obj ) char *filename; char *mode; bzFile *obj; {
 #endif
-  int ret;
   PerlIO *io;
 
   io = PerlIO_open( filename, mode );
@@ -529,7 +534,6 @@ bzFile* bzfile_fdopen( PerlIO *io, char *mode, bzFile *obj ) {
 #else
 bzFile* bzfile_fdopen( io, mode, obj ) PerlIO *io; char *mode; bzFile *obj; {
 #endif
-  int ret;
 
   if ( io == NULL ) {
     BZ_SETERR(obj, BZ_PARAM_ERROR, NULL);
@@ -655,7 +659,7 @@ int bzfile_streambuf_collect( obj, out, outlen ) bzFile* obj; char* out; int out
 #endif
   /* deflate */
   /* pull collected compressed data from buffer */
-  int ret, before;
+  int ret;
 
   ret = bzfile_streambuf_read( obj, out, outlen );
 
@@ -1035,7 +1039,6 @@ int bzfile_readline( bzFile* obj, char *lineOfUncompress, int maxLineLength ) {
 int bzfile_readline( obj, lineOfUncompress, maxLineLength ) bzFile* obj; char *lineOfUncompress; int maxLineLength; {
 #endif
   int n = 0;
-  int i;
   char *p = NULL;
   int bytes_read = 0;
   char lastch = 0;
@@ -1762,7 +1765,6 @@ memBzip(sv, level = 6)
 	STRLEN		len;
 	unsigned char *	in;
 	unsigned char *	out;
-	void *		wrkmem;
 	unsigned int	in_len;
 	unsigned int	out_len;
 	unsigned int	new_len;
@@ -1885,7 +1887,6 @@ MY_bzopen(...)
     PerlIO *io;
     char *filename, *mode, *class;
     STRLEN ln, lnfilename, lnclass;
-    int ret;
 
     bzFile* obj;
     SV *perlobj;
@@ -2223,6 +2224,9 @@ MY_bzread(obj, buf, len=4096)
 	*SvEND(buf) = '\0';
       }
     }
+    else {
+      RETVAL  = 0;
+    }
   }
 
   OUTPUT:
@@ -2256,6 +2260,9 @@ MY_bzreadline(obj, buf, len=4096)
 	*SvEND(buf) = '\0';
       }
     }
+    else {
+      RETVAL  = 0;
+    }
   }
 
   OUTPUT:
@@ -2288,6 +2295,9 @@ MY_bzwrite(obj, buf, limit=0)
 
       if ( RETVAL > 0 )
 	SvCUR_set( buf, RETVAL );
+    }
+    else {
+      RETVAL  = 0;
     }
   }
 
@@ -2503,9 +2513,8 @@ MY_bzinflate(obj, buffer)
     STRLEN outbufl = 0;
 
     STRLEN bufl;
-    STRLEN bytes_to_go;
     char collect_buffer[1000];
-    int i, amt_read, amt_collected;
+    int i, amt_collected;
     char *bufp, *inp;
     int error_flag = 0;
 
