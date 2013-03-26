@@ -1819,9 +1819,10 @@ memBunzip(sv)
     unsigned char *	in;
     unsigned char *	out;
     unsigned int	in_len;
-    unsigned int	out_len;
+    unsigned int        out_len;
     unsigned int	new_len;
-    int		err;
+    int			err;
+    int 		noprefix = 0;
 
   CODE:
   {
@@ -1834,7 +1835,8 @@ memBunzip(sv)
     if (len < 5 + 3 || in[0] < 0xf0 || in[0] > 0xf1) {
       if (len > 16 && in[0] == 'B' && in[1] == 'Z' && in[2] == 'h') {
 	in_len = len;
-	out_len = 0;
+	out_len = len * 5; /* guess uncompressed size */
+	noprefix = 1;
 	RETVAL = newSV(len * 10);
       } else {
 	warn("invalid buffer (too short %ld or bad marker %d)",len,in[0]);
@@ -1847,10 +1849,10 @@ memBunzip(sv)
     }
     SvPOK_only(RETVAL);
     out = (unsigned char*)SvPVX(RETVAL);
-    new_len = out_len ? out_len : len * 5; /* guess uncompressed size */
+    new_len = out_len;
     err = BZ2_bzBuffToBuffDecompress((char*)out,&new_len,
-      out_len ? (char*)in+5:(char *)in, in_len,0,0);
-    while (!out_len && (err == BZ_OUTBUFF_FULL)) {
+      noprefix ? (char*)in:(char *)in+5, in_len,0,0);
+    while (noprefix && (err == BZ_OUTBUFF_FULL)) {
       new_len = SvLEN(RETVAL) * 2;
       SvGROW(RETVAL, new_len);
       err = BZ2_bzBuffToBuffDecompress((char*)out,&new_len,
@@ -1861,7 +1863,7 @@ memBunzip(sv)
       BZ_SETERR(NULL, err, ix==1 ? "decompress" : "memBunzip");
       XSRETURN_UNDEF;
     }
-    if (out_len && new_len != out_len) {
+    if (!noprefix && new_len != out_len) {
       SvREFCNT_dec(RETVAL);
       BZ_SETERR(NULL, err, ix==1 ? "decompress" : "memBunzip");
       XSRETURN_UNDEF;

@@ -22,7 +22,8 @@ my @AlNum = ('A'..'Z','a'..'z','0'..'9',' ');
 
 sub try {
   my $str = shift;
-  my $comp = compress($str,$Level);
+  my $level = shift || $Level;
+  my $comp = compress($str,$level);
   return 0 if not defined $comp;
   my $orig = decompress($comp);
   return 0 if not defined $orig;
@@ -37,7 +38,7 @@ sub try {
 # some short strings
 
 my $sum;
-ok(try(''),'empty string');
+ok(try('', 1),'empty string');
 ok((eval { try(undef) }, $@),'undef fails');
 $sum = 0;
 $sum += try($_) for @AlNum;
@@ -60,10 +61,12 @@ is($sum,5,'reference tests');
 
 $sum = 0;
 for my $random(1..100) {
-  $Level = 9 if 80 == $random;
+  my $level = $Level;
+  $level = 1 if 20 == $random;
+  $level = 9 if 80 == $random;
   my $str = '';
   $str .= $AlNum[rand @AlNum] for 1..rand 100;
-  $sum += try($str);
+  $sum += try($str, $level);
 }
 is($sum,100,'100 random strings');
 
@@ -71,10 +74,12 @@ is($sum,100,'100 random strings');
 
 ($In,$Out) = (0,0);
 for my $random(1..100) {
-  $Level = 1 if 20 == $random;
+  my $level = $Level;
+  $level = 1 if 20 == $random;
+  $level = 9 if 80 == $random;
   my $str = '';
   $str .= ($AlNum[rand @AlNum] x rand 1000) for 1..100+rand 900;
-  ok(try($str),"long string $random");
+  ok(try($str, $level),"long string $random");
 }
 diag(sprintf "compression ratio %.2f%%",100*$Out/$In);
 
@@ -82,10 +87,12 @@ diag(sprintf "compression ratio %.2f%%",100*$Out/$In);
 
 ($In,$Out) = (0,0);
 for my $random(1..100) {
-  $Level = 9 if 80 == $random;
+  my $level = $Level;
+  $level = 1 if 20 == $random;
+  $level = 9 if 80 == $random;
   my $str = '';
   $str .= chr(rand 256) for 1..1000+rand 9000;
-  ok(try($str),"binary string $random");
+  ok(try($str, $level),"binary string $random");
 }
 diag(sprintf "compression ratio %.2f%%",100*$Out/$In);
 
