@@ -33,7 +33,8 @@ $bytesout = 0;
 while ( my $ln = sysread( $in, $buf, 512 ) ) {
   # test buf as scalar or scalarref
   ( $outbuf, $status ) = $d->bzinflate( $counter % 2 ? \$buf : $buf );
-  if ( $status != BZ_STREAM_END && $status != BZ_OK || !defined($outbuf) ) {
+  # the 2nd attempt to read from the 512 buf in bzfile_streambuf_read will cause a BZ_IO_ERROR
+  if ( $status != BZ_IO_ERROR && $status != BZ_STREAM_END && $status != BZ_OK || !defined($outbuf) ) {
     diag "error: $outbuf $bzerrno\n";
     last;
   }

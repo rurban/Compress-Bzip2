@@ -1135,6 +1135,9 @@ int bzfile_read( obj, bufferOfUncompress, nUncompress ) bzFile* obj; char *buffe
 
     return -1;
   }
+  if (obj->verbosity>=4)
+    PerlIO_printf(PerlIO_stderr(), "debug: bzfile_read(obj, %p, %d) obj->open_status=%d\n",
+		  bufferOfUncompress, nUncompress, obj->open_status);
 
   if (obj->open_status == OPEN_STATUS_WRITE || obj->open_status == OPEN_STATUS_WRITESTREAM) {
     BZ_SETERR(obj, BZ_SEQUENCE_ERROR, NULL);
@@ -1844,7 +1847,7 @@ memBunzip(sv)
     }
     SvPOK_only(RETVAL);
     out = (unsigned char*)SvPVX(RETVAL);
-    new_len = out_len ? out_len : len * 3; /* guess out size */
+    new_len = out_len ? out_len : len * 5; /* guess uncompressed size */
     err = BZ2_bzBuffToBuffDecompress((char*)out,&new_len,
       out_len ? (char*)in+5:(char *)in, in_len,0,0);
     while (!out_len && (err == BZ_OUTBUFF_FULL)) {
