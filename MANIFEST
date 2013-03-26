@@ -33,6 +33,7 @@ t/034-uncompfile.t
 t/035-uncompreadline.t
 t/040-memory.t
 t/041-error.t
+t/041-double-free.t
 t/050-deflate.t
 t/051-deflate-flush.t
 t/060-inflate.t

@@ -127,3 +127,5 @@ in a lot of places.
      global destruction of IO::Handle mixed up with a socket
    - [cpan #36246] compress 0-byte srcfiles correctly. by Jeffrey Ratcliffe.
      fixes debian bug 464205
+   - [cpan #28366] added testcase for double free or corruption on 32 bit, threaded
+     but could not repro it.
