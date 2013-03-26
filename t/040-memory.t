@@ -52,7 +52,7 @@ $uncompress = memBunzip( $sample0 );
 ok( $uncompress, "sample0 uncompressed w/o header" );
 like( $uncompress, qr/^That\'s great, it starts with an earthquake/ );
 
-my $header = pack("c", 0xf0);
+my $header = pack("C", 0xf0);
 $header .= pack "N", $uncompress ? length($uncompress) : 2027;
 $uncompress = memBunzip( $header . $sample0 );
 ok( $uncompress, "sample0 uncompressed w/ header" );
