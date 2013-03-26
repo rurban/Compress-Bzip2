@@ -2458,24 +2458,22 @@ bzinflateInit(...)
   {
     int i;
 
-    if (items % 2) croak("Compress::Bzip2::%s has odd parameter count", ix==0 ? "bzinflateInit" : "decompress_init");
+    if (items % 2)
+      croak("Compress::Bzip2::%s has odd parameter count", ix==0 ? "bzinflateInit" : "decompress_init");
 
-    if ( obj == NULL ) {
-      obj = bzfile_new( 0, 0, 1, 0 );
-      bzfile_openstream( "r", obj );
-
-      perlobj = newSV(0);
-      sv_setref_iv( perlobj, "Compress::Bzip2", PTR2IV(obj) );
-      sv_2mortal(perlobj);
-    }
-
+    obj = bzfile_new( 0, 0, 1, 0 );
+    bzfile_openstream( "r", obj );
     if ( obj == NULL ) {
       XPUSHs(sv_newmortal());
       if (GIMME == G_ARRAY) 
 	XPUSHs(sv_2mortal(newSViv(global_bzip_errno)));
     }
 
-    for (i=1; i<items-1; i+=2) {
+    perlobj = newSV(0);
+    sv_setref_iv( perlobj, "Compress::Bzip2", PTR2IV(obj) );
+    sv_2mortal(perlobj);
+
+    for (i=0; i < items; i+=2) {
       param = (char*) SvPV( ST(i), lnparam );
       setting = SvIV( ST(i+1) );
       bzfile_setparams( obj, param, setting );
