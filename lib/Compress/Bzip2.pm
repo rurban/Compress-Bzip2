@@ -2,7 +2,7 @@
 # Author   : Rob Janes
 # Created  : 14 April 2005
 # Modified : 2013-04-01 09:55:38 rurban
-# Version  : 2.11
+# Version  : 2.12
 #
 #     Copyright (c) 2005 Rob Janes. All rights reserved.
 #     This program is free software; you can redistribute it and/or
@@ -130,7 +130,7 @@ $EXPORT_TAGS{'all'} = [ @EXPORT_OK ];
 
 our @EXPORT = ( @{ $EXPORT_TAGS{'utilities'} }, @{ $EXPORT_TAGS{'constants'} } );
 
-our $VERSION = "2.11";
+our $VERSION = "2.12";
 
 our $bzerrno = "";
 our $gzerrno;
@@ -1562,6 +1562,5 @@ although apparently compatible as it passes the 1.03 test suite.
 See the Changes file.
 
 2.00 Second public release of I<Compress::Bzip2>.
-
 
 

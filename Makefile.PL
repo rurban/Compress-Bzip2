@@ -27,36 +27,52 @@ my %Bzip2 = ( pm => catfile( qw( lib Compress Bzip2.pm ) ),
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
-	      NAME              => 'Compress::Bzip2',
-	      VERSION_FROM      => $Bzip2{pm},
-	      PREREQ_PM         => {
-	      'Test::More' => 0,
-	      'File::Spec' => 0,
-	      'File::Copy' => 0,
-	      'Config' => 0,
-	      'Carp' => 0,
-	      'Getopt::Std' => 0,
-	      'Fcntl' => 0,
-	      },
-	      XS	 	=> { 'Bzip2.xs'    => 'Bzip2.c' },
-	      ($] >= 5.005 ?
-	       (ABSTRACT_FROM  => $Bzip2{pm},
-		AUTHOR         => 'Rob Janes <arjay@cpan.org>') : ()),
-	      LIBS              => $BUILD_BZLIB ? [] : [ $BZLIB_LIB ? "-L$BZLIB_LIB -lbz2" : '-lbz2' ],
-	      DEFINE            => $Config{gccversion} ? '-std=c89' : '',
-              # EUMM bug #84345 missing -R
-              LDDLFLAGS         => $Config{lddlflags} . " " . $Config{ccdlflags},
-	      INC               => $BUILD_BZLIB ? '-Ibzlib-src' : $BZLIB_INCLUDE ? "-I$BZLIB_INCLUDE" : '',
-	      $BUILD_BZLIB ? ( MYEXTLIB          => $Bzip2{lib} ) : ( ),
-	      clean             => {
-		FILES=>
-		    join(' ',
-			 map { catfile( split( /\//, $_ ) ) }
-			 qw( const-c.inc const-xs.inc junk* bztest show_bzversion t/???-tmp-* ))
-		  },
-	      depend            => { 'Makefile'	  => 'config.in' },
-	      NORECURS          => $BUILD_BZLIB ? 0 : 1,
-	      
+  NAME              => 'Compress::Bzip2',
+  VERSION_FROM      => $Bzip2{pm},
+  PREREQ_PM         => {
+    'Test::More' => 0,
+    'File::Spec' => 0,
+    'File::Copy' => 0,
+    'Config'     => 0,
+    'Carp'       => 0,
+    'Getopt::Std'=> 0,
+    'Fcntl'      => 0,
+  },
+  XS	 	=> { 'Bzip2.xs'    => 'Bzip2.c' },
+  ($] >= 5.005 ?
+   (ABSTRACT_FROM  => $Bzip2{pm},
+    AUTHOR         => 'Rob Janes <arjay@cpan.org>') : ()),
+  LIBS              => $BUILD_BZLIB ? [] : [ $BZLIB_LIB ? "-L$BZLIB_LIB -lbz2" : '-lbz2' ],
+  DEFINE            => $Config{gccversion} ? '-std=c89' : '',
+  # EUMM bug #84345 missing -R
+  LDDLFLAGS         => $Config{lddlflags} . " " . $Config{ccdlflags},
+  INC               => $BUILD_BZLIB ? '-Ibzlib-src' : $BZLIB_INCLUDE ? "-I$BZLIB_INCLUDE" : '',
+  $BUILD_BZLIB ? ( MYEXTLIB          => $Bzip2{lib} ) : ( ),
+  clean             => {
+    FILES=>
+      join(' ',
+	   map { catfile( split( /\//, $_ ) ) }
+	   qw( const-c.inc const-xs.inc junk* bztest show_bzversion t/???-tmp-* ))
+  },
+  depend            => { 'Makefile'	  => 'config.in' },
+  NORECURS          => $BUILD_BZLIB ? 0 : 1,
+  ($ExtUtils::MakeMaker::VERSION gt '6.46' ?
+   ('LICENSE'     => 'perl',
+    'META_MERGE'  =>
+    {"recommends" =>
+     {
+       'Compress::Zlib'       => '1.19',
+       'IO::Compress::Bzip2'  => '2.060',
+       'Compress::Raw::Bzip2' => '2.060',
+     },
+     resources =>
+     {
+       license     => 'http://dev.perl.org/licenses/',
+       repository  => 'https://github.com/rurban/Compress-Bzip2',
+     },
+    }
+   ) : ()),
+  SIGN  => 1,
 );
 
 if  (eval {require ExtUtils::Constant; 1}) {
