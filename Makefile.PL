@@ -44,6 +44,8 @@ WriteMakefile(
 		AUTHOR         => 'Rob Janes <arjay@cpan.org>') : ()),
 	      LIBS              => $BUILD_BZLIB ? [] : [ $BZLIB_LIB ? "-L$BZLIB_LIB -lbz2" : '-lbz2' ],
 	      DEFINE            => $Config{gccversion} ? '-std=c89' : '',
+              # EUMM bug #84345 missing -R
+              LDDLFLAGS         => $Config{lddlflags} . " " . $Config{ccdlflags},
 	      INC               => $BUILD_BZLIB ? '-Ibzlib-src' : $BZLIB_INCLUDE ? "-I$BZLIB_INCLUDE" : '',
 	      $BUILD_BZLIB ? ( MYEXTLIB          => $Bzip2{lib} ) : ( ),
 	      clean             => {

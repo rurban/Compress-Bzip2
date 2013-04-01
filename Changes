@@ -132,3 +132,4 @@ in a lot of places.
 
 2.11 2013-04-01 rurban
    - [cpan #84239] Updated FSF address
+   - [cpan #68572] Workaround EUMM bug #84345 missing -R
