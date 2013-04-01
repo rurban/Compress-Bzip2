@@ -129,3 +129,6 @@ in a lot of places.
      fixes debian bug 464205
    - [cpan #28366] added testcase for double free or corruption on 32 bit, threaded
      but could not repro it.
+
+2.11 2013-04-01 rurban
+   - [cpan #84239] Updated FSF address
