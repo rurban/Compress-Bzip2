@@ -2,7 +2,7 @@
 # Author   : Rob Janes
 # Created  : 14 April 2005
 # Modified : 2013-04-01 09:55:38 rurban
-# Version  : 2.12
+# Version  : 2.13
 #
 #     Copyright (c) 2005 Rob Janes. All rights reserved.
 #     This program is free software; you can redistribute it and/or
@@ -12,7 +12,7 @@
 package Compress::Bzip2;
 
 use 5.006;
-
+our $VERSION = "2.13";
 use strict;
 use warnings;
 
@@ -129,8 +129,6 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'utilities'} },
 $EXPORT_TAGS{'all'} = [ @EXPORT_OK ];
 
 our @EXPORT = ( @{ $EXPORT_TAGS{'utilities'} }, @{ $EXPORT_TAGS{'constants'} } );
-
-our $VERSION = "2.12";
 
 our $bzerrno = "";
 our $gzerrno;
@@ -898,6 +896,8 @@ shown below, are available for use.
   BZ_STREAM_END
   BZ_UNEXPECTED_EOF
 
+=head2 B<$bz-E<gt>bzclearerr>
+
 =head2 B<$bzerrno>
 
 The B<$bzerrno> scalar holds the error code associated with the most
@@ -921,6 +921,30 @@ be used safely.
 Returns the additional 5 byte header which is prepended to the bzip2
 header  starting with C<BZh> when using memBzip/compress.
 
+=head1 Compress::Bzip2 Utilities
+
+Options: -d -c -z -f -v -k -s -1..9
+
+=head2 bzip2( [OPTS], filename)
+
+=head2 bunzip2(filename)
+
+=head2 bzcat(filenames...)
+
+=head2 bzlibversion()
+
+=head2 bzinflateInit( opts... )
+
+=head1 Internal Utilties
+
+=head2 bz_seterror(errno, msg)
+=head2 $bz-E<gt>is_read()
+=head2 $bz-E<gt>is_stream()
+=head2 $bz-E<gt>is_write()
+=head2 $bz-E<gt>total_in()
+=head2 $bz-E<gt>total_out()
+=head2 version()
+
 =head1 Compress::Bzip2 1.03 COMPATIBILITY
 
 While the 2.x thread forked off of 1.00, another line of development
@@ -930,18 +954,22 @@ streaming interface to inflate/deflate, and a cpan style test suite.
 
 =head2 B<$dest = compress( $string, [$level] )>
 
-Alias to memBzip, this compresses string, using the optional
+Alias to L<memBzip>, this compresses string, using the optional
 compression level, 1 through 9, the default being 6.  Returns a string
 containing the compressed data.
 
 On error I<undef> is returned.
 
-=head2 B<$dest = decompress($string)>
+=head2 B<$dest = decompress($string, [$level])>
 
-Alias to memBunzip, this decompresses the data in string, returning a
+Alias to L<memBunzip>, this decompresses the data in string, returning a
 string containing the decompressed data.
 
 On error I<undef> is returned.
+
+=head2 uncompress($string, [$level])
+
+Another alias to L<memBunzip>
 
 =head2 B<$stream = compress_init( [PARAMS] )>
 

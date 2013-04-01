@@ -11,6 +11,6 @@ eval "use Test::Pod::Coverage 1.04";
 plan skip_all => "Test::Pod::Coverage 1.04 required for testing POD coverage"
     if $@;
 
-pod_coverage_ok( "B::Stats", { trustme => [ qr/B::Stats::Minus/ ] } );
+pod_coverage_ok( "Compress::Bzip2", { trustme => [ qw( constant  )]});
 
 done_testing();
