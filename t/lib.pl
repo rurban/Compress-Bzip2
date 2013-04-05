@@ -151,7 +151,8 @@ sub ParseCONFIG {
 	' '. $Config{ldflags} .
 	' -o show_bzversion show_bzversion.c' .
 	( $BZLIB_LIB ? " -L$BZLIB_LIB" : '' ) .
-	' -lbz2';
+	' -lbz2'
+	. ($^O eq 'MSWin32' ? ' 2>nul' : ' 2>/dev/null');
 
     #print STDERR "command $command\n";
     if ( !system( $command ) ) {

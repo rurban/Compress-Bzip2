@@ -22,7 +22,7 @@ my $BUILD_BZLIB = 0 ;
 ParseCONFIG() ;
 
 my %Bzip2 = ( pm => catfile( qw( lib Compress Bzip2.pm ) ),
-	      lib => catfile( qw( bzlib-src libbz2$(LIB_EXT) ) ) );
+	      lib => catfile( 'bzlib-src', 'libbz2'.$Config{_a} ) );
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
@@ -42,11 +42,10 @@ WriteMakefile(
   ($] >= 5.005 ?
    (ABSTRACT_FROM  => $Bzip2{pm},
     AUTHOR         => 'Rob Janes <arjay@cpan.org>') : ()),
-  LIBS              => $BUILD_BZLIB ? [] : [ $BZLIB_LIB ? "-L$BZLIB_LIB -lbz2" : '-lbz2' ],
+  LIBS             => $BUILD_BZLIB ? [] : [ $BZLIB_LIB ? "-L$BZLIB_LIB -lbz2" : '-lbz2' ],
   # EUMM bug #84345 missing -R
   LDDLFLAGS         => $Config{lddlflags} . " " . $Config{ccdlflags},
   INC               => $BUILD_BZLIB ? '-Ibzlib-src' : $BZLIB_INCLUDE ? "-I$BZLIB_INCLUDE" : '',
-  $BUILD_BZLIB ? ( MYEXTLIB          => $Bzip2{lib} ) : ( ),
   clean             => {
     FILES=>
       join(' ',
@@ -55,6 +54,7 @@ WriteMakefile(
   },
   depend            => { 'Makefile'	  => 'config.in' },
   NORECURS          => $BUILD_BZLIB ? 0 : 1,
+  ($BUILD_BZLIB ? ( MYEXTLIB       => $Bzip2{lib} ) : ()),
   ($ExtUtils::MakeMaker::VERSION gt '6.46' ?
    ('LICENSE'     => 'perl',
     'META_MERGE'  =>

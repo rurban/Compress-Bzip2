@@ -144,3 +144,7 @@ in a lot of places.
 
 2.14 2013-04-05 rurban
    - Fixed solaris gcc issue [cpan #84432] by removing -std=c89
+
+2.15 2013-04-05 rurban
+   - Silence show_bzversion warnings with make test in t/lib.pl when -lbz2 is unusable.
+     ParseConfig is duplicated and not needed in t/lib.pl, but I'll leave it there.

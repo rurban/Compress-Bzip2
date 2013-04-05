@@ -1,8 +1,8 @@
 # File	   : Bzip2.pm
 # Author   : Rob Janes
 # Created  : 14 April 2005
-# Modified : 2013-04-05 08:55:33 rurban
-# Version  : 2.14
+# Modified : 2013-04-05 09:56:15 rurban
+# Version  : 2.15
 #
 #     Copyright (c) 2005 Rob Janes. All rights reserved.
 #     This program is free software; you can redistribute it and/or
@@ -12,7 +12,7 @@
 package Compress::Bzip2;
 
 use 5.006;
-our $VERSION = "2.14";
+our $VERSION = "2.15";
 use strict;
 use warnings;
 
