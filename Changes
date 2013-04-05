@@ -141,3 +141,6 @@ in a lot of places.
 
 2.13 2013-04-01 rurban
    - Fixed POD coverage
+
+2.14 2013-04-05 rurban
+   - Fixed solaris gcc issue [cpan #84432] by removing -std=c89

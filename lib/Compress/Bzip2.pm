@@ -1,8 +1,8 @@
 # File	   : Bzip2.pm
 # Author   : Rob Janes
 # Created  : 14 April 2005
-# Modified : 2013-04-01 09:55:38 rurban
-# Version  : 2.13
+# Modified : 2013-04-05 08:55:33 rurban
+# Version  : 2.14
 #
 #     Copyright (c) 2005 Rob Janes. All rights reserved.
 #     This program is free software; you can redistribute it and/or
@@ -12,7 +12,7 @@
 package Compress::Bzip2;
 
 use 5.006;
-our $VERSION = "2.13";
+our $VERSION = "2.14";
 use strict;
 use warnings;
 
@@ -1585,10 +1585,12 @@ close to that of Compress::Zlib.  It's development forks from 1.00,
 not 1.03, so the streaming interface is not the same as that in 1.03,
 although apparently compatible as it passes the 1.03 test suite.
 
+Minor subsequent fixes and releases were done by Reini Urban,
+rurban@cpan.org.
+
 =head1 MODIFICATION HISTORY
 
 See the Changes file.
 
 2.00 Second public release of I<Compress::Bzip2>.
-
 
