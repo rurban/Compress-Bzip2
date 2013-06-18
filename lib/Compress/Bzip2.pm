@@ -1573,7 +1573,7 @@ F<azemgi@rupert.informatik.uni-stuttgart.de>.  It provided an
 interface to the in memory inflate and deflate routines.
 
 I<Compress::Bzip2> was subsequently passed on to Marco Carnut
-F<kiko@tempest.com.br> who shepharded it through to version 1.03, a
+F<kiko@tempest.com.br> who shepherded it through to version 1.03, a
 set of changes which included upgrades to handle bzlib 1.0.2, and
 improvements to the in memory inflate and deflate routines.  The
 streaming interface and error information were added by David Robins
