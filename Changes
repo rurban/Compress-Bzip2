@@ -151,3 +151,6 @@ in a lot of places.
 
 2.16 2013-06-18 rurban
    - pod typo fixed by GH dsteinbrunner.
+
+2.17 2013-08-28 rurban
+   - Fixed license in README (thanks to John Peacock)

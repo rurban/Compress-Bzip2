@@ -1,12 +1,12 @@
 
 Compress::Bzip2
 
-Version 2.09
+Version 2.17
 
-9 Aug 2005
+2013-08-28
 
 The subdirectory bzlib-src contains almost all of the files from the
-1.0.2 distribution of bzip2.  What's missing is that I only included
+1.0.6 distribution of bzip2.  What's missing is that I only included
 the html flavour of the documentation.  See the README in there for
 more information.
 
@@ -30,11 +30,11 @@ an entire document.
 
 Streaming decompression on the other hand, gives a steady torrent of bytes.
 
-What is Perl-Bzip2 ?
+What is Compress::Bzip2 ?
 ====================
-Perl-Bzip2 provides Bzip2 bindings for Perl5. I.e. you can access the
-Bzip2 library from your Perl scripts thereby compressing ordinary
-Perl files, streams, whatever.
+Compress::Bzip2 provided early Bzip2 bindings for Perl5 compatible to
+the old Compress::Zlib library. See Compress::Raw::Bzip2 for the new API
+compatible with IO::Compress.
 
 It's my intent to make this package like the Compress::Zlib package, so
 that code that uses one can fairly easily use the other.  The perlxs stuff
@@ -61,8 +61,14 @@ Copyright
 bzip2
 Julian Seward, j s e w a r d   a t   a c m . o r g
 
-Compress-Bzip2 is distributed under the terms of the
+Compress-Bzip2 prior to 2.0 is distributed under the terms of the
 GNU General Public License (GPL).  See the file COPYING.
+
+Since version 2.0 Compress-Bzip2 is dual-licensed.
+You can redistribute it and/or modify it under the same terms as Perl
+itself, either Perl version 5.8.3 or, at your option, any later
+version of Perl 5 you may have available.
+
 
 Many Thanks to:
 ===============
