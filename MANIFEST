@@ -5,6 +5,8 @@ COPYING
 INSTALL
 ANNOUNCE
 NEWS
+META.json
+META.yml
 Makefile.PL
 config.in
 ppport.h

@@ -159,3 +159,4 @@ in a lot of places.
    - [cpan #68572] add ccdlflags for show_bzversion missing -R also, similar to the
      fix in 2.11. Not a EUMM bug.
    - require constant 1.04 (since 5.8) to accept hashrefs.
+   - add META to MANIFEST
