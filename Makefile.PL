@@ -172,6 +172,7 @@ sub ParseCONFIG {
     my $command = $Config{cc} .
 	' '. $Config{ccflags} .
 	( $BZLIB_INCLUDE ? " -I$BZLIB_INCLUDE" : '' ) .
+	' '. $Config{ccdlflags} .
 	' '. $Config{ldflags} .
 	' -o show_bzversion show_bzversion.c' .
 	( $BZLIB_LIB ? " -L$BZLIB_LIB" : '' ) .
