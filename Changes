@@ -154,3 +154,8 @@ in a lot of places.
 
 2.17 2013-08-28 rurban
    - Fixed license in README (thanks to John Peacock)
+
+2.18 2014-08-06 rurban
+   - [cpan #68572] add ccdlflags for show_bzversion missing -R also, similar to the
+     fix in 2.11. Not a EUMM bug.
+   - require constant 1.04 (since 5.8) to accept hashrefs.

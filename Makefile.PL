@@ -30,6 +30,7 @@ WriteMakefile(
   NAME              => 'Compress::Bzip2',
   VERSION_FROM      => $Bzip2{pm},
   PREREQ_PM         => {
+    'constant'   => 1.04, # for constant => {}
     'Test::More' => 0,
     'File::Spec' => 0,
     'File::Copy' => 0,
@@ -43,7 +44,7 @@ WriteMakefile(
    (ABSTRACT_FROM  => $Bzip2{pm},
     AUTHOR         => 'Rob Janes <arjay@cpan.org>') : ()),
   LIBS             => $BUILD_BZLIB ? [] : [ $BZLIB_LIB ? "-L$BZLIB_LIB -lbz2" : '-lbz2' ],
-  # EUMM bug #84345 missing -R
+  # ccdlflags needed for -R [cpan #68572]
   LDDLFLAGS         => $Config{lddlflags} . " " . $Config{ccdlflags},
   INC               => $BUILD_BZLIB ? '-Ibzlib-src' : $BZLIB_INCLUDE ? "-I$BZLIB_INCLUDE" : '',
   clean             => {
