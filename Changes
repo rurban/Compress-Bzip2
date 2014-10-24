@@ -160,3 +160,6 @@ in a lot of places.
      fix in 2.11. Not a EUMM bug.
    - require constant 1.04 (since 5.8) to accept hashrefs.
    - add META to MANIFEST
+
+2.19 2014-10-24 rurban
+   - fixed generated SIGNATURE
