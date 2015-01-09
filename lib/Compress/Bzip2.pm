@@ -360,7 +360,7 @@ sub _process_files ( @ ) {
 	print STDERR "Error: failed to stat $infile: '$!'\n";
 	next;
       }
-      
+
       if ( !_check_stat( $infile, \@statbuf, $opts{f} ) ) {
 	print STDERR "Error: file $infile stat check fails: $bzerrno\n";
 	next;
@@ -383,7 +383,7 @@ sub _process_files ( @ ) {
 	next;
       }
     }
-    
+
     if ( !$read_from_stdin ) {
       undef $in;
       if ( !open( $in, $infile ) ) {
@@ -445,7 +445,7 @@ sub _process_files ( @ ) {
     }
   }
 }
-  
+
 ##############################################################################
 ##############################################################################
 ## compatibility with Compress::Bzip2 1.03
@@ -705,7 +705,7 @@ Compress::Bzip2 - Interface to Bzip2 compression library
     $bytesread = $bz->bzread($buffer [,$size]) ;
     $bytesread = $bz->bzreadline($line);
     $byteswritten = $bz->bzwrite($buffer [,$limit]);
-    $errstring = $bz->bzerror(); 
+    $errstring = $bz->bzerror();
     $status = $bz->bzeof();
     $status = $bz->bzflush();
     $status = $bz->bzclose() ;
@@ -776,7 +776,7 @@ the case of an error, -1.
 
 =head2 B<$bytesread = $bz-E<gt>bzreadline($line) ;>
 
-Reads the next line from the compressed file into B<$line>. 
+Reads the next line from the compressed file into B<$line>.
 
 Returns the number of bytes actually read. On EOF it returns 0 and in
 the case of an error, -1.
@@ -1155,7 +1155,7 @@ The buffer parameter can either be a scalar or a scalar reference. The
 contents of the buffer parameter are destroyed after calling this
 function.
 
-=head1 STREAM DEFLATE 
+=head1 STREAM DEFLATE
 
 The Perl interface will I<always> consume the complete input buffer
 before returning. Also the output buffer returned will be
@@ -1165,7 +1165,7 @@ Here is a definition of the interface available:
 
 =head2 B<($d, $status) = bzdeflateInit( [PARAMS] )>
 
-Initialises a deflation stream. 
+Initialises a deflation stream.
 
 If successful, it will return the initialised deflation stream, B<$d>
 and B<$status> of C<BZ_OK> in a list context. In scalar context it
@@ -1282,18 +1282,18 @@ input, deflates it and writes it to standard output.
     while (<>)
     {
         ($output, $status) = $x->bzdeflate($_) ;
-    
+
         $status == BZ_OK
             or die "deflation failed\n" ;
-    
+
         print $output ;
     }
-    
+
     ($output, $status) = $x->bzclose() ;
-    
+
     $status == BZ_OK
         or die "deflation failed\n" ;
-    
+
     print $output ;
 
 =head1 STREAM INFLATE
@@ -1302,7 +1302,7 @@ Here is a definition of the interface:
 
 =head2 B<($i, $status) = inflateInit()>
 
-Initialises an inflation stream. 
+Initialises an inflation stream.
 
 In a list context it returns the inflation stream, B<$i>, and the
 I<zlib> status code (B<$status>). In a scalar context it returns the
@@ -1371,27 +1371,27 @@ Here is an example of using B<bzinflate>.
 
     use strict ;
     use warnings ;
-    
+
     use Compress::Bzip2;
-    
+
     my $x = bzinflateInit()
        or die "Cannot create a inflation stream\n" ;
-    
+
     my $input = '' ;
     binmode STDIN;
     binmode STDOUT;
-    
+
     my ($output, $status) ;
     while (read(STDIN, $input, 4096))
     {
         ($output, $status) = $x->bzinflate(\$input) ;
-    
-        print $output 
+
+        print $output
             if $status == BZ_OK or $status == BZ_STREAM_END ;
-    
+
         last if $status != BZ_OK ;
     }
-    
+
     die "inflation failed\n"
         unless $status == BZ_STREAM_END ;
 
@@ -1403,24 +1403,24 @@ Here are some example scripts of using the interface.
 
   use strict ;
   use warnings ;
-    
+
   use Compress::Bzip2 ;
-    
+
   die "Usage: bzcat file...\n" unless @ARGV ;
-    
+
   my $file ;
-    
+
   foreach $file (@ARGV) {
     my $buffer ;
-    
-    my $bz = bzopen($file, "rb") 
+
+    my $bz = bzopen($file, "rb")
        or die "Cannot open $file: $bzerrno\n" ;
-    
+
     print $buffer while $bz->bzread($buffer) > 0 ;
-    
-    die "Error reading from $file: $bzerrno" . ($bzerrno+0) . "\n" 
+
+    die "Error reading from $file: $bzerrno" . ($bzerrno+0) . "\n"
        if $bzerrno != BZ_STREAM_END ;
-        
+
     $bz->bzclose() ;
   }
 
@@ -1428,26 +1428,26 @@ Here are some example scripts of using the interface.
 
   use strict ;
   use warnings ;
-    
+
   use Compress::Bzip2 ;
-    
+
   die "Usage: bzgrep pattern file...\n" unless @ARGV >= 2;
-    
+
   my $pattern = shift ;
-    
+
   my $file ;
-    
+
   foreach $file (@ARGV) {
-    my $bz = bzopen($file, "rb") 
+    my $bz = bzopen($file, "rb")
        or die "Cannot open $file: $bzerrno\n" ;
-    
+
     while ($bz->bzreadline($_) > 0) {
       print if /$pattern/ ;
     }
-    
-    die "Error reading from $file: $bzerrno\n" 
+
+    die "Error reading from $file: $bzerrno\n"
       if $bzerrno != Z_STREAM_END ;
-        
+
     $bz->bzclose() ;
   }
 
@@ -1459,14 +1459,14 @@ output.
 
   use strict ;
   use warnings ;
-    
+
   use Compress::Bzip2 ;
-    
+
   binmode STDOUT;	# bzopen only sets it on the fd
-    
+
   my $bz = bzopen(\*STDOUT, "wb")
      or die "Cannot open stdout: $bzerrno\n" ;
-    
+
   while (<>) {
     $bz->bzwrite($_) or die "error writing: $bzerrno\n" ;
   }
