@@ -1,24 +1,24 @@
 
-Compress::Bzip2
+# Compress::Bzip2
 
-Version 2.17
+### Version 2.17
 
-2013-08-28
+**Update** 2013-08-28
 
 The subdirectory bzlib-src contains almost all of the files from the
 1.0.6 distribution of bzip2.  What's missing is that I only included
 the html flavour of the documentation.  See the README in there for
 more information.
 
-DESCRIPTION
-===========
+### DESCRIPTION
+
 
 This module provides a Perl interface to the bzip2 compression algorithms.
 It uses the low level interface to the algorithm, and reimplements all
 high level routines.
 
-What is Bzip2 ?
-===============
+### What is Bzip2 ?
+
 Bzip2 is a portable lossless data compression library written in ANSI C.
 It offers pretty fast compression and fast decompression.
 Bzip2 has very good results, if you want to compress ASCII Documents.
@@ -30,8 +30,8 @@ an entire document.
 
 Streaming decompression on the other hand, gives a steady torrent of bytes.
 
-What is Compress::Bzip2 ?
-====================
+### What is Compress::Bzip2 ?
+
 Compress::Bzip2 provided early Bzip2 bindings for Perl5 compatible to
 the old Compress::Zlib library. See Compress::Raw::Bzip2 for the new API
 compatible with IO::Compress.
@@ -43,12 +43,17 @@ Compress::Zlib counterparts, except that the "g" is changed to a "b".
 
 Most code that uses Compress::Zlib should be able to use this package.
 Simply change
+```
 
    $gz = Compress::Zlib::gzopen( "filename", "w" );
+   
+```
 
 to
+```
 
    $gz = Compress::Bzip2::gzopen( "filename", "w" );
+  ```
 
 I made aliases of all the Compress::Zlib functions.  Some of them don't
 return anything useful, like crc32 or adler32, cause bzip2 doesn't
@@ -56,10 +61,11 @@ do that sort of thing.  Take a look at t/070-gzcomp.t and t/071-gzuncomp.t.
 
 Bug fixes and other feedback are welcome.
 
-Copyright
-=========
+### Copyright
+
 bzip2
-Julian Seward, j s e w a r d   a t   a c m . o r g
+
+**Julian Seward**, j s e w a r d   a t   a c m . o r g
 
 Compress-Bzip2 prior to 2.0 is distributed under the terms of the
 GNU General Public License (GPL).  See the file COPYING.
@@ -70,25 +76,36 @@ itself, either Perl version 5.8.3 or, at your option, any later
 version of Perl 5 you may have available.
 
 
-Many Thanks to:
-===============
+### Many Thanks to:
 
-Author of bzip2:
+
+**Author of bzip2**
+
 Julian Seward, j s e w a r d   a t   a c m . o r g
+
 Cambridge, UK
+
 http://sources.redhat.com/bzip2
 
-Author of Compress::Zlib:
+**Author of Compress::Zlib**
+
 Paul Marquess, p m q s   a t   c p a n . o r g
+
 http://www.cpan.org
 
-Author of 1.x Compress::Bzip2 (1999)
+**Author of 1.x Compress::Bzip2 (1999)**
+
 Gawdi Azem <azemgi@rupert.informatik.uni-stuttgart.de>
+
 (last known email, no longer valid)
 
-Sisyphus, helped out with win32 compatibility
-s i s y p h u s 1   a t   o p t u s n e t . c o m . a u
+**Helped out with win32 compatibility**
 
-Marco "Kiko" Carnut, author of Compress::Bzip2 1.03
+Sisyphus, s i s y p h u s 1   a t   o p t u s n e t . c o m . a u
+
+**Author of Compress::Bzip2 1.03**
+
+Marco "Kiko" Carnut,
+ 
 k i k o   a t   t e m p e s t . c o m . b r
 
