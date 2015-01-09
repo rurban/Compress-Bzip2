@@ -732,6 +732,13 @@ The module can be split into two general areas of functionality, namely
 in-memory compression/decompression and read/write access to I<bzip2>
 files. Each of these areas will be discussed separately below.
 
+B<NOTE>
+
+I<Compress::Bzip2> is just I<Bzip2> bindings for Perl5 compatible to
+the old L<Compress::Zlib> library, so it is not the preferred module to
+compress/uncompress bzip2. please look at L<IO::Compress::Bzip2> instead
+
+
 =head1 FILE READ/WRITE INTERFACE
 
 A number of functions are supplied in I<bzlib> for reading and writing
