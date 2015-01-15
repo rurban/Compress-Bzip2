@@ -1,29 +1,19 @@
 
 # Compress::Bzip2
 
-### Version 2.17
-
-**Update** 2013-08-28
-
-The subdirectory bzlib-src contains almost all of the files from the
-1.0.6 distribution of bzip2.  What's missing is that I only included
-the html flavour of the documentation.  See the README in there for
-more information.
-
 ### DESCRIPTION
 
-
-This module provides a Perl interface to the bzip2 compression algorithms.
-It uses the low level interface to the algorithm, and reimplements all
-high level routines.
+This module provides a Compress::Zlib like Perl interface to the bzip2
+library.  It uses the low level interface to the bzip2 algorithm, and
+reimplements all high level routines.
 
 ### What is Bzip2 ?
 
-Bzip2 is a portable lossless data compression library written in ANSI C.
+bzip2 is a portable lossless data compression library written in ANSI C.
 It offers pretty fast compression and fast decompression.
-Bzip2 has very good results, if you want to compress ASCII Documents.
+bzip2 has very good results, if you want to compress ASCII Documents.
 
-Bzip2 is probably not great for streaming compression.  It fills it's
+bzip2 is probably not great for streaming compression.  It fills it's
 internal buffer, which depending of parameters is between 100k and 900k
 in size, before it outputs ANY compressed data.  It works best compressing
 an entire document.
@@ -32,7 +22,7 @@ Streaming decompression on the other hand, gives a steady torrent of bytes.
 
 ### What is Compress::Bzip2 ?
 
-Compress::Bzip2 provided early Bzip2 bindings for Perl5 compatible to
+Compress::Bzip2 provided early bzip2 bindings for Perl5 compatible to
 the old Compress::Zlib library. See Compress::Raw::Bzip2 for the new API
 compatible with IO::Compress.
 

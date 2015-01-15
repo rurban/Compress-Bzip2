@@ -1,8 +1,8 @@
 # File	   : Bzip2.pm
 # Author   : Rob Janes
 # Created  : 14 April 2005
-# Modified : 2014-08-06 rurban
-# Version  : 2.18
+# Modified : 2015-01-15 rurban
+# Version  : 2.19
 #
 #     Copyright (c) 2005 Rob Janes. All rights reserved.
 #     This program is free software; you can redistribute it and/or
@@ -12,7 +12,7 @@
 package Compress::Bzip2;
 
 use 5.006;
-our $VERSION = "2.18";
+our $VERSION = "2.19";
 use strict;
 use warnings;
 
@@ -721,9 +721,9 @@ Compress::Bzip2 - Interface to Bzip2 compression library
 
 =head1 DESCRIPTION
 
-The I<Compress::Bzip2> module provides a Perl interface to the I<Bzip2>
+The I<Compress::Bzip2> module provides a Perl interface to the B<bzip2>
 compression library (see L</AUTHOR> for details about where to get
-I<Bzip2>). A relevant subset of the functionality provided by I<Bzip2>
+I<Bzip2>). A relevant subset of the functionality provided by I<bzip2>
 is available in I<Compress::Bzip2>.
 
 All string parameters can either be a scalar or a scalar reference.
@@ -734,9 +734,9 @@ files. Each of these areas will be discussed separately below.
 
 B<NOTE>
 
-I<Compress::Bzip2> is just I<Bzip2> bindings for Perl5 compatible to
-the old L<Compress::Zlib> library, so it is not the preferred module to
-compress/uncompress bzip2. please look at L<IO::Compress::Bzip2> instead
+I<Compress::Bzip2> is just a simple I<bzip2> binding, comparable to the
+old L<Compress::Zlib> library. It is not well integrated into PerlIO,
+use the preferred L<IO::Compress::Bzip2> instead.
 
 
 =head1 FILE READ/WRITE INTERFACE

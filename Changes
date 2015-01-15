@@ -160,3 +160,7 @@ in a lot of places.
      fix in 2.11. Not a EUMM bug.
    - require constant 1.04 (since 5.8) to accept hashrefs.
    - add META to MANIFEST
+
+2.19 2015-01-15 rurban
+   - Convert README to markdown, mention the preferred IO::Compress::Bzip2 in
+     the docs (done by Pattarawat Chormai, GH PR #2)
