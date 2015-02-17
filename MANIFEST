@@ -1,3 +1,4 @@
+.gitignore
 README.md
 Changes
 MANIFEST
@@ -6,6 +7,7 @@ INSTALL
 ANNOUNCE
 NEWS
 Makefile.PL
+META.yml
 config.in
 ppport.h
 typemap
@@ -103,6 +105,7 @@ bzlib-src/xmlproc.sh
 bzlib-src/t/01-baseline.t
 bzlib-src/t/lib.pl
 t/900_kwalitee.t
+t/900_leaktrace.t
 t/900_meta.t
 t/900_perl_minimum_version.t
 t/900_pod-coverage.t

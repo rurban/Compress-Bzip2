@@ -167,3 +167,7 @@ in a lot of places.
 2.20 2015-01-15 rurban
    - Convert README to markdown, mention the preferred IO::Compress::Bzip2 in
      the docs (done by Pattarawat Chormai, GH PR #2)
+
+2.21 2015-02-17 rurban
+   - Add leaktrace and manifest test
+   - Add .gitignore
