@@ -2033,7 +2033,7 @@ MY_bzclose(obj, abandon=0)
 	  XPUSHs(sv_2mortal(newSVpv("",0)));
       }
       else
-        XPUSHs(outbuf);
+        XPUSHs(sv_2mortal(outbuf));
 
       if (GIMME == G_ARRAY) 
         XPUSHs(sv_2mortal(newSViv(global_bzip_errno)));
@@ -2096,7 +2096,7 @@ MY_bzflush(obj, flag=0)
       if (outbuf==NULL)
 	XPUSHs(sv_newmortal());
       else
-	XPUSHs(outbuf);
+	XPUSHs(sv_2mortal(outbuf));
 
       if (GIMME == G_ARRAY) 
 	XPUSHs(sv_2mortal(newSViv(global_bzip_errno)));
@@ -2440,7 +2440,7 @@ MY_bzdeflate(obj, buffer)
 	XPUSHs(sv_2mortal(newSVpv("",0)));
     }
     else
-      XPUSHs(outbuf);
+      XPUSHs(sv_2mortal(outbuf));
 
     if (GIMME == G_ARRAY) 
       XPUSHs(sv_2mortal(newSViv(global_bzip_errno)));
@@ -2479,7 +2479,6 @@ bzinflateInit(...)
 
     perlobj = newSV(0);
     sv_setref_iv( perlobj, "Compress::Bzip2", PTR2IV(obj) );
-    sv_2mortal(perlobj);
 
     for (i=0; i < items; i+=2) {
       param = (char*) SvPV( ST(i), lnparam );
@@ -2487,7 +2486,7 @@ bzinflateInit(...)
       bzfile_setparams( obj, param, setting );
     }
 
-    XPUSHs(perlobj);
+    XPUSHs(sv_2mortal(perlobj));
     if (GIMME == G_ARRAY) 
       XPUSHs(sv_2mortal(newSViv(global_bzip_errno)));
   }
@@ -2547,7 +2546,7 @@ MY_bzinflate(obj, buffer)
 	XPUSHs(sv_2mortal(newSVpv("",0)));
     }
     else
-      XPUSHs(outbuf);
+      XPUSHs(sv_2mortal(outbuf));
 
     if (GIMME == G_ARRAY) 
       XPUSHs(sv_2mortal(newSViv(global_bzip_errno)));

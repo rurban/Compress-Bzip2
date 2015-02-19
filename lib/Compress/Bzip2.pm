@@ -1,8 +1,8 @@
 # File	   : Bzip2.pm
 # Author   : Rob Janes
 # Created  : 14 April 2005
-# Modified : 2015-02-17 rurban
-# Version  : 2.21
+# Modified : 2015-02-19 rurban
+# Version  : 2.22
 #
 #     Copyright (c) 2005 Rob Janes. All rights reserved.
 #     This program is free software; you can redistribute it and/or
@@ -12,7 +12,7 @@
 package Compress::Bzip2;
 
 use 5.006;
-our $VERSION = "2.21";
+our $VERSION = "2.22";
 use strict;
 use warnings;
 
@@ -682,11 +682,11 @@ Compress::Bzip2 - Interface to Bzip2 compression library
 
     use Compress::Bzip2 qw(:all :constant :utilities :gzip);
 
-    ($bz, $status) = bzdeflateInit( [PARAMS] ) ;
-    ($out, $status) = $bz->bzdeflate($buffer) ;
+    ($bz, $status) = bzdeflateInit( [PARAMS] );
+    ($out, $status) = $bz->bzdeflate($buffer) ; # compress
 
-    ($bz, $status) = bzinflateInit( [PARAMS] ) ;
-    ($out, $status) = $bz->bzinflate($buffer) ;
+    ($bz, $status) = bzinflateInit( [PARAMS] );
+    ($out, $status) = $bz->bzinflate($buffer);  # uncompress
 
     ($out, $status) = $bz->bzflush() ;
     ($out, $status) = $bz->bzclose() ;
@@ -1162,7 +1162,7 @@ The buffer parameter can either be a scalar or a scalar reference. The
 contents of the buffer parameter are destroyed after calling this
 function.
 
-=head1 STREAM DEFLATE
+=head1 STREAM DEFLATE (= COMPRESS)
 
 The Perl interface will I<always> consume the complete input buffer
 before returning. Also the output buffer returned will be

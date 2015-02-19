@@ -7,7 +7,6 @@ INSTALL
 ANNOUNCE
 NEWS
 Makefile.PL
-META.yml
 config.in
 ppport.h
 typemap
@@ -43,6 +42,7 @@ t/071-gzuncomp.t
 t/080-version.t
 t/081-basic.t
 t/082-stream.t
+t/090-memory-usage.pl
 bzlib-src/blocksort.c
 bzlib-src/bz-common.xsl
 bzlib-src/bzdiff

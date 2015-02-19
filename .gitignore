@@ -7,6 +7,7 @@ Bzip2.o
 Compress-Bzip2-*.tar.gz
 Debian_CPANTS.txt
 MANIFEST.files
+META.yml
 MYMETA.json
 MYMETA.yml
 Makefile
