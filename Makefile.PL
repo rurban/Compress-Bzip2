@@ -24,6 +24,16 @@ ParseCONFIG() ;
 my %Bzip2 = ( pm => catfile( qw( lib Compress Bzip2.pm ) ),
 	      lib => catfile( 'bzlib-src', 'libbz2'.$Config{_a} ) );
 
+my $dlflags = $Config{ccdlflags};
+if ($Config{ld} =~ m{^(.*/)?\w*ld\w*$}) {
+  my @flags;
+  for (split m/\s+/ => $dlflags) {
+    s/^-Wl,(-+[-\w]+),/$1 / or s/^-Wl,//;
+    push @flags, $_;
+  }
+  $dlflags = join " " => @flags;
+}
+
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
@@ -44,8 +54,8 @@ WriteMakefile(
    (ABSTRACT_FROM  => $Bzip2{pm},
     AUTHOR         => 'Rob Janes <arjay@cpan.org>') : ()),
   LIBS             => $BUILD_BZLIB ? [] : [ $BZLIB_LIB ? "-L$BZLIB_LIB -lbz2" : '-lbz2' ],
-  # ccdlflags needed for -R [cpan #68572]
-  LDDLFLAGS         => $Config{lddlflags} . " " . $Config{ccdlflags},
+  # ccdlflags needed for -R [cpan #68572, #105096]
+  LDDLFLAGS         => $Config{lddlflags} . " " . $dlflags,
   INC               => $BUILD_BZLIB ? '-Ibzlib-src' : $BZLIB_INCLUDE ? "-I$BZLIB_INCLUDE" : '',
   clean             => {
     FILES=>

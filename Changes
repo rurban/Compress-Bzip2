@@ -177,3 +177,7 @@ in a lot of places.
    - Better memory leak testcase with Memory::Dump, t/090-memory-usage.pl
      (RT #102211 by Nick Koston)
    - clarify docs that deflate = compress, inflate = uncompress
+
+2.23 2015-06-08 rurban
+   - HP-UX lddlflags fix by Merjin Brand (RT #105096)
+     "ld: Unrecognized argument: -Wl,-E"
