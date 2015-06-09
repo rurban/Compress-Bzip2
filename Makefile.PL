@@ -24,8 +24,8 @@ ParseCONFIG() ;
 my %Bzip2 = ( pm => catfile( qw( lib Compress Bzip2.pm ) ),
 	      lib => catfile( 'bzlib-src', 'libbz2'.$Config{_a} ) );
 
-my $dlflags = $Config{ccdlflags};
-if ($Config{ld} =~ m{^(.*/)?\w*ld\w*$}) {
+my $dlflags = $Config{ccdlflags}; # RT 105096
+if ($Config{ld} ne $Config{cc} and $Config{ld} =~ m{^(.*/)?\w*ld\w*$}) {
   my @flags;
   for (split m/\s+/ => $dlflags) {
     s/^-Wl,(-+[-\w]+),/$1 / or s/^-Wl,//;
