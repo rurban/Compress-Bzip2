@@ -1839,7 +1839,7 @@ memBunzip(sv)
 	noprefix = 1;
 	RETVAL = newSV(len * 10);
       } else {
-	warn("invalid buffer (too short %ld or bad marker %d)",len,in[0]);
+	warn("invalid buffer (too short %ld or bad marker %d)",(long)len,in[0]);
 	XSRETURN_UNDEF;
       }
     } else {
@@ -2396,7 +2396,7 @@ MY_bzdeflate(obj, buffer)
 
 	    if ( obj->verbosity>=4 )
 	      PerlIO_printf(PerlIO_stderr(), "debug: bzdeflate collected %d, outbuf is now %ld\n",
-			    amt_collected, outp-firstp);
+			    amt_collected, (long)(outp-firstp));
 	  }
 
 	  if ( errno != EAGAIN ) error_flag = 1;
@@ -2428,7 +2428,7 @@ MY_bzdeflate(obj, buffer)
 
       if ( obj->verbosity>=4 )
 	PerlIO_printf(PerlIO_stderr(), "debug: bzdeflate collected %d, outbuf is now %ld\n",
-		      amt_collected, outp-firstp);
+		      amt_collected, (long)(outp-firstp));
     }
 
     if ( errno != EAGAIN ) error_flag = 1;
