@@ -17,7 +17,7 @@ require VMS::Filespec if $^O eq 'VMS';
 my $BZLIB_BIN ;
 my $BZLIB_LIB ;
 my $BZLIB_INCLUDE ;
-my $BUILD_BZLIB = 0 ;
+my $BUILD_BZLIB = 0; # override with env BUILD_BZLIB=1
 
 ParseCONFIG() ;
 

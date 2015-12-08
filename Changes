@@ -182,3 +182,8 @@ in a lot of places.
    - HP-UX lddlflags fix by Merjin Brand (RT #105096)
      "ld: Unrecognized argument: -Wl,-E"
    - -Wformat fixes
+
+2.24 2015-12-08 rurban
+   - Silence gcc-5 optimizer warning (RT #105647)
+     with internal BUILD_BZLIB=1
+   - Improve kwalitee test
