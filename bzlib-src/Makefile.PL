@@ -37,7 +37,7 @@ sub top_targets {
   my $objects = join( ' ', map { $_.'$(OBJ_EXT)' } qw(blocksort huffman crctable randtable compress decompress bzlib) );
   my $ar_args = $cc eq 'cl' && $^O =~ /win32/i ? '-out:$@' : '$(AR_STATIC_ARGS) $@';
 
- 	'
+  my $out='
 all ' . ( $^O =~ /win32/i && $make eq 'dmake' ? ':' : '::' ) . ' static
 
 pure_all ' . ( $^O =~ /win32/i && $make eq 'dmake' ? ':' : '::' ) . ' static
@@ -65,4 +65,14 @@ libbz2$(LIB_EXT): ' . $objects . '
   : 'bzip2$(EXE_EXT): bzip2$(OBJ_EXT) libbz2$(LIB_EXT)' ) . '
 ';
 
+if ($ExtUtils::MakeMaker::VERSION >= 7.16) { #https://rt.cpan.org/Ticket/Display.html?id=117800
+#when it will be fixed in EUMM, '<=' condition should be added
+    $out .= '
+
+dynamic ::
+	$(NOECHO) $(NOOP)
+
+';
+}
+  return $out;
 }
