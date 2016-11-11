@@ -187,3 +187,6 @@ in a lot of places.
    - Silence gcc-5 optimizer warning (RT #105647)
      with internal BUILD_BZLIB=1
    - Improve kwalitee test
+
+2.25 2016-11-11 rurban
+   - Workaround EUMM 7.16 (RT #117800) by chorny
