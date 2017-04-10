@@ -7,7 +7,7 @@ BEGIN {
   use_ok('Compress::Bzip2');
 };
 
-do 't/lib.pl';
+do './t/lib.pl';
 
 # [cpan #28366] double free or corruption on 32 bit, threaded
 my $INFILE = catfile( qw(bzlib-src sample1.ref) );

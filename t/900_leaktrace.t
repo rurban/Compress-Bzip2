@@ -18,7 +18,7 @@ leaks_cmp_ok{
   my $uncompress = memBunzip( $compress );
 } '<', 1;
 
-do 't/lib.pl';
+do './t/lib.pl';
 
 leaks_cmp_ok{
   my $INFILE = catfile( qw(bzlib-src sample0.bz2) );

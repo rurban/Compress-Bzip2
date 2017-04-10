@@ -190,3 +190,6 @@ in a lot of places.
 
 2.25 2016-11-11 rurban
    - Workaround EUMM 7.16 (RT #117800) by chorny
+
+2.26 2017-04-10 rurban
+   - . in @INC test fixes for perl5.26 (RT #121020)

@@ -13,7 +13,7 @@ BEGIN {
 
 our ( $debugf, $BZIP );
 
-do 't/lib.pl';
+do './t/lib.pl';
 
 my $INFILE = catfile( qw(bzlib-src sample2.ref) );
 ( my $MODELFILE = $INFILE ) =~ s/\.ref$/.bz2/;

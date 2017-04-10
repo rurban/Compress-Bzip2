@@ -11,7 +11,7 @@ BEGIN {
 
 our ( $debugf, $BZIP );
 
-do 't/lib.pl';
+do './t/lib.pl';
 
 my $INFILE = catfile( qw(bzlib-src sample2.bz2) );
 ( my $MODELFILE = $INFILE ) =~ s/\.bz2$/.ref/;

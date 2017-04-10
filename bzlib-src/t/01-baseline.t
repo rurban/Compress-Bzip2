@@ -5,7 +5,7 @@ use Test::More tests => 6;
 
 our ( $debugf, $BZIP );
 
-do 't/lib.pl';
+do './t/lib.pl';
 
 my $PREFIX = catfile( qw(t 01-tmp) );
 

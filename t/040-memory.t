@@ -38,7 +38,7 @@ ok( $compress ne $string, "bzip1 string was not inouted" );
 ok( length($compress)-10 < length($string), "bzip1 string compression - ".length($compress).' vs '.length($string) );
 ok( $uncompress eq $string, "bzip1 decompress is same as the original" );
 
-do 't/lib.pl';
+do './t/lib.pl';
 
 # allow plain BZh files with memBunzip also
 my $INFILE = catfile( qw(bzlib-src sample0.bz2) );
